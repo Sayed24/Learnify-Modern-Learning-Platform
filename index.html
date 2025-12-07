@@ -3,90 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Learnify — Tech Red Edition</title>
+  <title>Learnify — Modern Learning Platform</title>
 
   <!-- Material Icons + Roboto -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
+  <!-- Highlight.js CSS (dark theme similar to VS Code Dark) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
+
   <link rel="stylesheet" href="styles/style.css" />
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Highlight.js core (will be called from app when lesson loads) -->
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
 </head>
 <body>
   <div id="app" class="app">
-
-    <!-- Responsive Header (Neo-Brutalist / Tech Red) -->
-    <header class="main-header glass">
-      <div class="nav-container">
+    <!-- NAV (restored Material + Glass header) -->
+    <nav class="nav glass">
+      <div class="nav-left">
+        <button id="menuBtn" class="icon-btn material"> <span class="material-icons">menu</span></button>
         <a class="brand" data-route="home">Learnify</a>
-
-        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </button>
-
-        <nav class="nav-links" id="navLinks">
-          <a data-route="home">Home</a>
-          <a data-route="courses">Courses</a>
-          <a data-route="explore">Explore</a>
-          <a data-route="dashboard">Dashboard</a>
-          <a data-route="achievements">Achievements</a>
-          <a data-route="certificates">Certificates</a>
-          <a data-route="about">About</a>
-
-          <div class="search-wrap">
-            <input id="searchInput" class="search" placeholder="Search courses, lessons..." aria-label="Search" />
-          </div>
-
-          <div class="profile-menu" id="profileMenuWrap">
-            <img src="assets/icons/user-circle.png" class="profile-icon" id="profileBtn" alt="User"/>
-            <div class="dropdown" id="profileDropdown" aria-hidden="true">
-              <p id="navUsername">Guest</p>
-              <button id="navLogin" class="btn ghost">Login</button>
-              <button id="navSignup" class="btn primary">Sign Up</button>
-              <button id="navLogout" class="btn ghost hidden">Logout</button>
-            </div>
-          </div>
-        </nav>
       </div>
-    </header>
+      <div class="nav-center">
+        <input id="searchInput" class="search" placeholder="Search courses or lessons..." />
+      </div>
+      <div class="nav-right">
+        <button id="themeToggle" class="icon-btn material" title="Toggle theme">
+          <span class="material-icons">dark_mode</span>
+        </button>
+        <div id="userArea"></div>
+      </div>
+    </nav>
 
-    <!-- Sidebar for large screens -->
+    <!-- SIDEBAR -->
     <aside id="sidebar" class="sidebar glass">
       <ul>
         <li><a data-route="home">Home</a></li>
         <li><a data-route="courses">Courses</a></li>
-        <li><a data-route="explore">Explore</a></li>
         <li><a data-route="dashboard">Dashboard</a></li>
-        <li><a data-route="achievements">Achievements</a></li>
         <li><a data-route="certificates">Certificates</a></li>
         <li><a data-route="about">About</a></li>
       </ul>
     </aside>
 
-    <!-- Main content -->
+    <!-- MAIN -->
     <main id="main">
-      <!-- Home -->
+      <!-- VIEWS are injected or toggled -->
       <section id="view-home" class="view">
-        <div class="container hero glass-card">
-          <div class="hero-left">
-            <h1>Learn modern web skills — get hired</h1>
-            <p>Interactive courses, quizzes, certificates and a beautiful Neo-Brutalist UI designed for portfolios.</p>
-            <div class="hero-cta">
-              <button class="btn primary" data-route="courses">Browse Courses</button>
-              <button class="btn ghost" data-route="explore">Explore</button>
-            </div>
-            <div class="hero-stats">
-              <div class="stat"><div class="stat-num" id="statCourses">0</div><div class="stat-label">Courses</div></div>
-              <div class="stat"><div class="stat-num" id="statUsers">0</div><div class="stat-label">Students</div></div>
-              <div class="stat"><div class="stat-num" id="statCerts">0</div><div class="stat-label">Certs</div></div>
-            </div>
+        <header class="hero glass">
+          <div>
+            <h1>Learn modern web skills</h1>
+            <p>Interactive courses, quizzes and certificates — built for your portfolio.</p>
+            <button class="btn primary" data-route="courses">Browse Courses</button>
           </div>
-          <div class="hero-right glass-card hero-illus">
-            <img src="assets/placeholder-hero.png" alt="learning illustration" />
+          <div class="hero-illus glass-card">
+            <img src="assets/placeholder-hero.png" alt="learning" />
           </div>
-        </div>
+        </header>
 
-        <section class="container">
+        <section class="featured container">
           <h2>Featured Courses</h2>
           <div id="featuredList" class="card-grid"></div>
         </section>
@@ -97,48 +74,33 @@
         </section>
       </section>
 
-      <!-- Courses -->
       <section id="view-courses" class="view hidden">
         <div class="container page-header">
           <h2>All Courses</h2>
-          <div class="controls">
+          <div class="filters">
             <select id="filterCategory"><option value="">All categories</option></select>
-            <select id="sortBy"><option value="new">Newest</option><option value="progress">Progress</option><option value="rating">Top Rated</option></select>
-            <button id="createCourseBtn" class="btn ghost" title="Add sample course">+ Add Sample</button>
+            <select id="sortBy"><option value="new">Newest</option><option value="progress">Progress</option></select>
           </div>
         </div>
         <div id="coursesGrid" class="card-grid container"></div>
       </section>
 
-      <!-- Course -->
       <section id="view-course" class="view hidden container">
-        <button class="back-btn" onclick="goBackSafe()">← Back</button>
+        <button class="btn ghost back-btn" id="backToCourses" onclick="goBackSafe()">← Back</button>
         <div id="courseHeader" class="course-header glass-card"></div>
         <div id="lessonsList" class="lessons glass-card"></div>
       </section>
 
-      <!-- Lesson -->
       <section id="view-lesson" class="view hidden container">
-        <button class="back-btn" onclick="goBackSafe()">← Back</button>
+        <button class="btn ghost back-btn" id="backToCourse" onclick="goBackSafe()">← Back</button>
         <div id="lessonContent" class="lesson glass-card"></div>
       </section>
 
-      <!-- Quiz -->
       <section id="view-quiz" class="view hidden container">
-        <button class="back-btn" onclick="goBackSafe()">← Back</button>
+        <button class="btn ghost back-btn" id="backFromQuiz" onclick="goBackSafe()">← Back</button>
         <div id="quizWrapper" class="glass-card"></div>
       </section>
 
-      <!-- Explore -->
-      <section id="view-explore" class="view hidden container">
-        <h2>Explore</h2>
-        <div class="filters">
-          <input id="exploreSearch" placeholder="Search by tag, skill or topic" />
-          <div id="exploreResults" class="card-grid"></div>
-        </div>
-      </section>
-
-      <!-- Dashboard -->
       <section id="view-dashboard" class="view hidden container">
         <h2>Your Dashboard</h2>
         <div class="grid-2">
@@ -157,31 +119,19 @@
         </div>
       </section>
 
-      <!-- Achievements -->
-      <section id="view-achievements" class="view hidden container">
-        <h2>Achievements</h2>
-        <div id="achievementsList" class="card-grid"></div>
-      </section>
-
-      <!-- Certificates -->
       <section id="view-certificates" class="view hidden container">
         <h2>Certificates</h2>
         <div id="certList" class="card-grid"></div>
       </section>
 
-      <!-- Login -->
       <section id="view-login" class="view hidden container auth-card glass-card">
         <h2>Login</h2>
         <input id="loginEmail" placeholder="Email" />
         <input id="loginPassword" placeholder="Password" type="password" />
-        <div class="auth-row">
-          <button id="loginBtn" class="btn primary">Login</button>
-          <button id="logoutTest" class="btn ghost hidden">Logout (test)</button>
-        </div>
+        <button id="loginBtn" class="btn primary">Login</button>
         <p>Don't have an account? <a id="toSignup">Sign up</a></p>
       </section>
 
-      <!-- Signup -->
       <section id="view-signup" class="view hidden container auth-card glass-card">
         <h2>Create account</h2>
         <input id="signupName" placeholder="Full name" />
@@ -191,36 +141,17 @@
         <p>Already have an account? <a id="toLogin">Login</a></p>
       </section>
 
-      <!-- Profile -->
-      <section id="view-profile" class="view hidden container">
-        <h2>Your Profile</h2>
-        <div class="glass-card">
-          <label>Full name <input id="profileName" /></label>
-          <label>Email <input id="profileEmail" disabled /></label>
-          <label>Avatar URL <input id="profileAvatar" /></label>
-          <div class="auth-row">
-            <button id="saveProfile" class="btn primary">Save</button>
-            <button id="logoutBtn" class="btn ghost">Logout</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- About -->
       <section id="view-about" class="view hidden container">
         <h2>About Learnify</h2>
-        <p>This project is a front-end, deployable learning platform demo — perfect for your portfolio and interviews.</p>
+        <p>A modern front-end learning platform demo for your portfolio. Built to show interactive UI, progress tracking, quizzes, and certificates.</p>
       </section>
 
     </main>
 
-    <!-- Toast -->
-    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-
-    <!-- hidden canvas for QR / certificate generation -->
-    <canvas id="hiddenCanvas" width="1200" height="675" class="hidden"></canvas>
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
   </div>
 
-  <!-- Data and App scripts -->
   <script src="scripts/data.js"></script>
   <script src="scripts/app.js"></script>
 </body>
