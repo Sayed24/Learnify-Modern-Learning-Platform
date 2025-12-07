@@ -1,1 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Learnify — Modern Learning Platform</title>
 
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles/style.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- NAV -->
+    <nav class="nav glass">
+      <div class="nav-left">
+        <button id="menuBtn" class="icon-btn material"> <span class="material-icons">menu</span></button>
+        <a class="brand" data-route="home">Learnify</a>
+      </div>
+      <div class="nav-center">
+        <input id="searchInput" class="search" placeholder="Search courses or lessons..." />
+      </div>
+      <div class="nav-right">
+        <button id="themeToggle" class="icon-btn material" title="Toggle theme">
+          <span class="material-icons">dark_mode</span>
+        </button>
+        <div id="userArea"></div>
+      </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar glass">
+      <ul>
+        <li><a data-route="home">Home</a></li>
+        <li><a data-route="courses">Courses</a></li>
+        <li><a data-route="dashboard">Dashboard</a></li>
+        <li><a data-route="certificates">Certificates</a></li>
+        <li><a data-route="about">About</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main">
+      <!-- VIEWS are injected or toggled -->
+      <section id="view-home" class="view">
+        <header class="hero glass">
+          <div>
+            <h1>Learn modern web skills</h1>
+            <p>Interactive courses, quizzes and certificates — built for your portfolio.</p>
+            <button class="btn primary" data-route="courses">Browse Courses</button>
+          </div>
+          <div class="hero-illus glass-card">
+            <img src="assets/placeholder-hero.png" alt="learning" />
+          </div>
+        </header>
+
+        <section class="featured container">
+          <h2>Featured Courses</h2>
+          <div id="featuredList" class="card-grid"></div>
+        </section>
+
+        <section class="container">
+          <h2>Categories</h2>
+          <div id="categories" class="chips"></div>
+        </section>
+      </section>
+
+      <section id="view-courses" class="view hidden">
+        <div class="container page-header">
+          <h2>All Courses</h2>
+          <div class="filters">
+            <select id="filterCategory"><option value="">All categories</option></select>
+            <select id="sortBy"><option value="new">Newest</option><option value="progress">Progress</option></select>
+          </div>
+        </div>
+        <div id="coursesGrid" class="card-grid container"></div>
+      </section>
+
+      <section id="view-course" class="view hidden container">
+        <button class="btn ghost" id="backToCourses"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="courseHeader" class="course-header glass-card"></div>
+        <div id="lessonsList" class="lessons glass-card"></div>
+      </section>
+
+      <section id="view-lesson" class="view hidden container">
+        <button class="btn ghost" id="backToCourse"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="lessonContent" class="lesson glass-card"></div>
+      </section>
+
+      <section id="view-quiz" class="view hidden container">
+        <button class="btn ghost" id="backFromQuiz"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="quizWrapper" class="glass-card"></div>
+      </section>
+
+      <section id="view-dashboard" class="view hidden container">
+        <h2>Your Dashboard</h2>
+        <div class="grid-2">
+          <div class="glass-card">
+            <h3>Progress Overview</h3>
+            <canvas id="progressChart" height="200"></canvas>
+          </div>
+          <div class="glass-card">
+            <h3>Quick Stats</h3>
+            <div id="quickStats"></div>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3>In-progress Courses</h3>
+          <div id="inProgressList"></div>
+        </div>
+      </section>
+
+      <section id="view-certificates" class="view hidden container">
+        <h2>Certificates</h2>
+        <div id="certList" class="card-grid"></div>
+      </section>
+
+      <section id="view-login" class="view hidden container auth-card glass-card">
+        <h2>Login</h2>
+        <input id="loginEmail" placeholder="Email" />
+        <input id="loginPassword" placeholder="Password" type="password" />
+        <button id="loginBtn" class="btn primary">Login</button>
+        <p>Don't have an account? <a id="toSignup">Sign up</a></p>
+      </section>
+
+      <section id="view-signup" class="view hidden container auth-card glass-card">
+        <h2>Create account</h2>
+        <input id="signupName" placeholder="Full name" />
+        <input id="signupEmail" placeholder="Email" />
+        <input id="signupPassword" placeholder="Password" type="password" />
+        <button id="signupBtn" class="btn primary">Sign up</button>
+        <p>Already have an account? <a id="toLogin">Login</a></p>
+      </section>
+
+      <section id="view-about" class="view hidden container">
+        <h2>About Learnify</h2>
+        <p>A modern front-end learning platform demo for your portfolio. Built to show interactive UI, progress tracking, quizzes, and certificates.</p>
+      </section>
+
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="scripts/data.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>
