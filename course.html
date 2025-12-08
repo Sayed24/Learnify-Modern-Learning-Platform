@@ -1,1 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Course — Learnify</title>
 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <nav class="nav glass">
+    <div class="nav-left">
+      <button id="menuBtn" class="icon-btn material"> <span class="material-icons">menu</span></button>
+      <a class="brand" href="index.html">Learnify</a>
+    </div>
+    <div class="nav-center">
+      <input id="searchInput" class="search" placeholder="Search courses or lessons..." />
+    </div>
+    <div class="nav-right" id="navUserArea"></div>
+  </nav>
+
+  <aside id="sidebar" class="sidebar glass">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html">Courses</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="certificates.html">Certificates</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </aside>
+
+  <main class="container">
+    <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
+    <div id="courseHeader" class="glass-card"></div>
+    <div id="lessonsList" class="glass-card"></div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+  <script src="assets/js/courses.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>initCoursePage();</script>
+</body>
+</html>
