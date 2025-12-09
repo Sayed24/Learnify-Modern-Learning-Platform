@@ -37,11 +37,5 @@ a{color:inherit}
 .lesson code{font-family:monospace}
 .toast{position:fixed;right:20px;bottom:20px;padding:.6rem 1rem;border-radius:8px;background:var(--accent);color:white;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
 .hidden{display:none}
-
-/* layouts */
-main{margin-left:260px;padding:1.25rem}
-@media (max-width:900px){
-  .sidebar{display:none}
-  main{margin-left:0;padding-top:80px}
-  .search{width:55%}
-}
+input, textarea{width:100%;padding:.6rem;margin-top:.45rem;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.9)}
+@media (max-width:900px){.sidebar{display:none}.main{margin-left:0;padding-top:80px}.search{width:55%}}
