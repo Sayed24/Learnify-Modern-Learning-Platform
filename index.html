@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Learning Platform • Courses, Lessons, Quizzes</title>
 
+<!-- Stylesheet -->
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="header glass">
+  <div class="logo">Learning Platform</div>
+
+  <nav class="nav">
+    <button onclick="navigate('home')" class="nav-btn">Home</button>
+    <button onclick="navigate('courses')" class="nav-btn">Courses</button>
+    <button onclick="navigate('progress')" class="nav-btn">Progress</button>
+    <button onclick="toggleTheme()" class="nav-btn">Theme</button>
+  </nav>
+</header>
+
+
+<!-- ===================== MAIN APP ===================== -->
+<main id="app">
+
+  <!-- HOME PAGE -->
+  <section id="home" class="page active">
+    <h2>Welcome</h2>
+    <p>A modern learning platform built with a professional UI design.</p>
+    <button onclick="navigate('courses')" class="primary-btn">Browse Courses</button>
+
+    <div class="hero glass">
+      <h3>What you can do here:</h3>
+      <ul>
+        <li>Learn through structured lessons</li>
+        <li>Take quizzes and test your knowledge</li>
+        <li>Track your progress (saved automatically)</li>
+        <li>Generate completion certificates</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <!-- COURSES PAGE -->
+  <section id="courses" class="page">
+    <h2>Courses</h2>
+    <p>Select a course to begin learning.</p>
+
+    <div id="coursesContainer" class="course-list"></div>
+  </section>
+
+
+  <!-- COURSE VIEW -->
+  <section id="courseView" class="page">
+    <button onclick="navigate('courses')" class="back-btn">← Back</button>
+    <h2 id="courseTitle"></h2>
+    <div id="lessonList"></div>
+  </section>
+
+
+  <!-- LESSON VIEW -->
+  <section id="lessonView" class="page">
+    <button onclick="navigate('courseView')" class="back-btn">← Back</button>
+    <h2 id="lessonTitle"></h2>
+    <div id="lessonContent" class="lesson-content"></div>
+
+    <button id="startQuizBtn" onclick="startQuiz()" class="primary-btn">
+      Start Lesson Quiz
+    </button>
+  </section>
+
+
+  <!-- QUIZ VIEW -->
+  <section id="quizView" class="page">
+    <button onclick="navigate('lessonView')" class="back-btn">← Back</button>
+    <h2>Quiz</h2>
+
+    <div id="quizBox"></div>
+
+    <button class="primary-btn" onclick="submitQuiz()">Submit Quiz</button>
+  </section>
+
+
+  <!-- RESULTS VIEW -->
+  <section id="resultView" class="page">
+    <h2>Your Results</h2>
+    <p id="resultText"></p>
+
+    <button onclick="generateCertificate()" class="primary-btn">
+      Generate Certificate
+    </button>
+
+    <button onclick="navigate('courses')" class="secondary-btn">
+      Back to Courses
+    </button>
+  </section>
+
+
+  <!-- CERTIFICATE VIEW -->
+  <section id="certificateView" class="page">
+    <h2>Certificate of Completion</h2>
+
+    <div class="certificate glass">
+      <h3 id="certCourse"></h3>
+      <p>Congratulations, <strong id="certUser">Sayedrahim Sadat</strong></p>
+      <p>You completed this course successfully.</p>
+      <p id="certDate"></p>
+    </div>
+
+    <button class="primary-btn" onclick="navigate('home')">Back to Home</button>
+  </section>
+
+
+  <!-- PROGRESS PAGE -->
+  <section id="progress" class="page">
+    <h2>Your Progress</h2>
+    <p>Automatically tracked and saved.</p>
+
+    <div id="progressBox" class="progress-list"></div>
+  </section>
+
+
+</main>
+
+<!-- Script -->
+<script src="script.js"></script>
+
+</body>
+</html>
