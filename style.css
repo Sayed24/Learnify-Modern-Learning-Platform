@@ -1,1 +1,263 @@
+/* =========================
+   RESET + BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
 
+body {
+  background: linear-gradient(135deg, #1e1e2f, #293042);
+  color: #fff;
+  padding-top: 80px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark-mode {
+  background: #121212 !important;
+  color: #e3e3e3 !important;
+}
+
+/* =========================
+   GLASS EFFECT
+========================= */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 25px rgba(0,0,0,0.18);
+}
+
+/* =========================
+   HEADER
+========================= */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-btn {
+  background: rgba(255,255,255,0.1);
+  padding: 10px 15px;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Responsive Header */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* =========================
+   PAGE HANDLING
+========================= */
+.page {
+  display: none;
+  padding: 20px;
+  animation: fade 0.3s ease;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.primary-btn {
+  padding: 12px 20px;
+  background: #4cc9f0;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 15px 0;
+  transition: 0.25s;
+}
+
+.primary-btn:hover {
+  background: #38b4dc;
+}
+
+.secondary-btn {
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.back-btn {
+  padding: 10px 15px;
+  background: #3a3a50;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+.hero {
+  margin-top: 20px;
+  padding: 20px;
+  border-left: 5px solid #4cc9f0;
+}
+
+/* =========================
+   COURSE CARDS
+========================= */
+.course-card {
+  padding: 20px;
+  margin: 15px 0;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 12px;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.12);
+}
+
+.course-list {
+  margin-top: 20px;
+}
+
+.badge {
+  background: #4cc9f0;
+  padding: 5px 12px;
+  border-radius: 8px;
+  color: #000;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+/* =========================
+   LESSON CONTENT
+========================= */
+.lesson-content {
+  margin-top: 15px;
+  line-height: 1.8;
+}
+
+.lesson-content ul {
+  margin-left: 20px;
+}
+
+pre {
+  background: #111;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+code {
+  font-family: monospace;
+  color: #4cc9f0;
+}
+
+/* =========================
+   QUIZ
+========================= */
+#quizBox .glass {
+  margin: 15px 0;
+}
+
+label {
+  cursor: pointer;
+  display: block;
+  margin: 4px 0;
+}
+
+/* =========================
+   CERTIFICATE
+========================= */
+.certificate {
+  margin: 20px auto;
+  padding: 30px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  border: 2px solid #4cc9f0;
+  border-radius: 18px;
+  box-shadow: 0 0 20px rgba(76,201,240,0.4);
+}
+
+/* =========================
+   PROGRESS PAGE
+========================= */
+.progress-list {
+  margin-top: 20px;
+}
+
+.progress-card {
+  padding: 20px;
+  margin: 15px 0;
+  border-left: 4px solid #4cc9f0;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* =========================
+   DARK MODE SUPPORT
+========================= */
+.dark-mode .glass {
+  background: rgba(255,255,255,0.05);
+}
+
+.dark-mode .primary-btn {
+  background: #9be4ff;
+}
+
+.dark-mode .course-card:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.dark-mode pre {
+  background: #222;
+}
+
+.dark-mode .certificate {
+  border-color: #9be4ff;
+  box-shadow: 0 0 20px rgba(155,228,255,0.4);
+}
