@@ -1,71 +1,114 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Learnify — Courses</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Platform</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <nav class="nav glass">
-    <div class="nav-left">
-      <button id="menuBtn" class="icon-btn material"> <span class="material-icons">menu</span></button>
-      <a class="brand" href="index.html">Learnify</a>
-    </div>
-    <div class="nav-center"><input id="searchInput" class="search" placeholder="Search courses or lessons..." /></div>
-    <div class="nav-right" id="navUserArea"></div>
+
+<!-- ================= HEADER ================= -->
+<header class="header glass">
+  <h1>Learning Platform</h1>
+  <nav>
+    <button class="nav-btn" onclick="navigate('home')">Home</button>
+    <button class="nav-btn" onclick="navigate('courses')">Courses</button>
+    <button class="nav-btn" onclick="navigate('progress')">Progress</button>
   </nav>
+</header>
 
-  <aside id="sidebar" class="sidebar glass">
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="index.html#courses">Courses</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
-      <li><a href="certificates.html">Certificates</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-  </aside>
+<!-- ================= MAIN WRAPPER ================= -->
+<main id="app">
 
-  <main>
-    <header class="hero glass-card container">
-      <div>
-        <h1>Learn modern web skills</h1>
-        <p>Interactive courses, quizzes and certificates — built for your portfolio.</p>
-        <a class="btn primary" href="index.html#courses">Browse Courses</a>
-      </div>
-      <div class="hero-illus glass-card"><img src="assets/images/placeholder-hero.png" alt="learning" /></div>
-    </header>
+  <!-- -------- HOME SECTION -------- -->
+  <section id="home" class="page active">
+    <h2>Welcome</h2>
+    <p>Your personal learning dashboard. Select a course and start learning.</p>
+    <button class="primary-btn" onclick="navigate('courses')">Browse Courses</button>
+  </section>
 
-    <section class="container" id="courses">
-      <div class="page-header">
-        <h2>All Courses</h2>
-        <div class="filters">
-          <select id="filterCategory"><option value="">All categories</option></select>
-          <select id="sortBy"><option value="new">Newest</option><option value="rating">Top Rated</option></select>
-        </div>
-      </div>
-      <div id="coursesGrid" class="card-grid"></div>
-    </section>
+  <!-- -------- COURSES SECTION -------- -->
+  <section id="courses" class="page">
+    <h2>Available Courses</h2>
 
-    <section class="container">
-      <h2>Featured</h2>
-      <div id="featuredList" class="card-grid"></div>
-    </section>
-  </main>
+    <div class="course-card glass" onclick="openCourse(1)">
+      <h3>HTML & CSS Fundamentals</h3>
+      <p>Learn how websites are built from scratch.</p>
+      <span class="badge">Beginner</span>
+    </div>
 
-  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <div class="course-card glass" onclick="openCourse(2)">
+      <h3>JavaScript Basics</h3>
+      <p>Understand programming concepts in JS.</p>
+      <span class="badge">Beginner</span>
+    </div>
 
-  <!-- vendor -->
-  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+    <div class="course-card glass" onclick="openCourse(3)">
+      <h3>Frontend Development Project</h3>
+      <p>Build a complete real-world web project.</p>
+      <span class="badge">Project</span>
+    </div>
 
-  <!-- app scripts -->
-  <script src="assets/js/courses.js"></script>
-  <script src="assets/js/app.js"></script>
+  </section>
 
-  <!-- initialize index -->
-  <script>document.addEventListener('DOMContentLoaded', initIndexPage);</script>
+  <!-- -------- COURSE DETAILS -------- -->
+  <section id="courseView" class="page">
+    <button class="back-btn" onclick="navigate('courses')">← Back</button>
+    <h2 id="courseTitle"></h2>
+    <div id="lessonList"></div>
+  </section>
+
+  <!-- -------- LESSON VIEW -------- -->
+  <section id="lessonView" class="page">
+    <button class="back-btn" onclick="navigate('courseView')">← Back</button>
+    <h2 id="lessonTitle"></h2>
+    <div id="lessonContent" class="lesson-content"></div>
+
+    <button class="primary-btn" id="startQuizBtn" onclick="startQuiz()">Start Quiz</button>
+  </section>
+
+  <!-- -------- QUIZ VIEW -------- -->
+  <section id="quizView" class="page">
+    <button class="back-btn" onclick="navigate('lessonView')">← Back</button>
+    <h2>Quiz</h2>
+
+    <div id="quizBox"></div>
+
+    <button class="primary-btn" id="submitQuizBtn" onclick="submitQuiz()">Submit Quiz</button>
+  </section>
+
+  <!-- -------- RESULTS -------- -->
+  <section id="resultView" class="page">
+    <h2>Results</h2>
+    <p id="resultText"></p>
+    <button class="primary-btn" onclick="generateCertificate()">Get Certificate</button>
+    <button class="secondary-btn" onclick="navigate('courses')">Go to Courses</button>
+  </section>
+
+  <!-- -------- CERTIFICATE -------- -->
+  <section id="certificateView" class="page">
+    <h2>Certificate of Completion</h2>
+
+    <div class="certificate glass">
+      <h3 id="certCourse"></h3>
+      <p>Certified to <strong id="certUser">Sayedrahim Sadat</strong></p>
+      <p>Completed Successfully</p>
+      <p id="certDate"></p>
+    </div>
+
+    <button class="primary-btn" onclick="navigate('home')">Back to Home</button>
+  </section>
+
+  <!-- -------- PROGRESS -------- -->
+  <section id="progress" class="page">
+    <h2>Your Progress</h2>
+    <div id="progressBox"></div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
