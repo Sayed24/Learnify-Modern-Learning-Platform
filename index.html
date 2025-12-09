@@ -1,114 +1,172 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learning Platform</title>
-<link rel="stylesheet" href="style.css">
-</head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Learnify — Single File Learning Platform</title>
 
+  <!-- Fonts + icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- External highlight.js (optional) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
 
-<!-- ================= HEADER ================= -->
-<header class="header glass">
-  <h1>Learning Platform</h1>
-  <nav>
-    <button class="nav-btn" onclick="navigate('home')">Home</button>
-    <button class="nav-btn" onclick="navigate('courses')">Courses</button>
-    <button class="nav-btn" onclick="navigate('progress')">Progress</button>
-  </nav>
-</header>
-
-<!-- ================= MAIN WRAPPER ================= -->
-<main id="app">
-
-  <!-- -------- HOME SECTION -------- -->
-  <section id="home" class="page active">
-    <h2>Welcome</h2>
-    <p>Your personal learning dashboard. Select a course and start learning.</p>
-    <button class="primary-btn" onclick="navigate('courses')">Browse Courses</button>
-  </section>
-
-  <!-- -------- COURSES SECTION -------- -->
-  <section id="courses" class="page">
-    <h2>Available Courses</h2>
-
-    <div class="course-card glass" onclick="openCourse(1)">
-      <h3>HTML & CSS Fundamentals</h3>
-      <p>Learn how websites are built from scratch.</p>
-      <span class="badge">Beginner</span>
+  <!-- TOP HEADER -->
+  <header class="header glass">
+    <div class="header-left">
+      <button id="hamburger" class="icon-btn" aria-label="Open sidebar"><span class="material-icons">menu</span></button>
+      <div class="brand" onclick="navigate('home')">Learnify</div>
     </div>
 
-    <div class="course-card glass" onclick="openCourse(2)">
-      <h3>JavaScript Basics</h3>
-      <p>Understand programming concepts in JS.</p>
-      <span class="badge">Beginner</span>
+    <div class="header-center">
+      <input id="globalSearch" placeholder="Search courses, lessons..." />
     </div>
 
-    <div class="course-card glass" onclick="openCourse(3)">
-      <h3>Frontend Development Project</h3>
-      <p>Build a complete real-world web project.</p>
-      <span class="badge">Project</span>
+    <div class="header-right">
+      <button id="themeToggle" class="icon-btn" title="Toggle theme"><span class="material-icons">dark_mode</span></button>
+      <div id="userArea"></div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar glass">
+    <nav>
+      <a class="nav-link" onclick="navigate('home')">Home</a>
+      <a class="nav-link" onclick="navigate('courses')">Courses</a>
+      <a class="nav-link" onclick="navigate('progress')">Progress</a>
+      <a class="nav-link" onclick="navigate('certs')">Certificates</a>
+      <a class="nav-link" onclick="navigate('about')">About</a>
+    </nav>
+    <div class="sidebar-footer muted">Learnify · Portfolio Demo</div>
+  </aside>
+
+  <!-- APP CONTAINER -->
+  <main id="app" class="app">
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="hero glass-card">
+        <div>
+          <h1>Build real skills. Land real jobs.</h1>
+          <p class="muted">Interactive courses, quizzes, projects and certificates — all for your portfolio.</p>
+          <div style="margin-top:12px">
+            <button class="btn primary" onclick="navigate('courses')">Browse Courses</button>
+            <button class="btn ghost" onclick="navigate('about')">About</button>
+          </div>
+        </div>
+        <div class="hero-illus">
+          <img src="assets/placeholder-hero.png" alt="learning illustration" />
+        </div>
+      </div>
+
+      <section class="container">
+        <h2>Featured Courses</h2>
+        <div id="featuredGrid" class="card-grid"></div>
+      </section>
+
+      <section class="container">
+        <h2>Popular Categories</h2>
+        <div id="categoryChips" class="chips"></div>
+      </section>
+    </section>
+
+    <!-- COURSES -->
+    <section id="courses" class="page">
+      <div class="page-header">
+        <h2>All Courses</h2>
+        <div class="controls">
+          <select id="filterCategory"></select>
+          <select id="sortBy">
+            <option value="new">Newest</option>
+            <option value="rating">Top Rated</option>
+            <option value="progress">My Progress</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="coursesGrid" class="card-grid container"></div>
+    </section>
+
+    <!-- COURSE VIEW -->
+    <section id="courseView" class="page container">
+      <button class="btn ghost back-btn" onclick="navigate('courses')">← Back</button>
+      <div id="courseHeader" class="glass-card"></div>
+      <div id="lessonList" class="glass-card"></div>
+    </section>
+
+    <!-- LESSON VIEW -->
+    <section id="lessonView" class="page container">
+      <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
+      <div id="lessonMeta" class="glass-card"></div>
+      <div id="lessonBody" class="glass-card lesson"></div>
+      <div style="display:flex;gap:.5rem;margin-top:.6rem">
+        <button id="markCompleteBtn" class="btn primary">Mark Complete</button>
+        <button id="nextLessonBtn" class="btn ghost">Next Lesson</button>
+        <button id="startQuizBtn" class="btn primary">Start Quiz</button>
+      </div>
+    </section>
+
+    <!-- QUIZ VIEW -->
+    <section id="quizView" class="page container">
+      <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
+      <div id="quizWrapper" class="glass-card"></div>
+    </section>
+
+    <!-- CERTIFICATES -->
+    <section id="certs" class="page container">
+      <h2>Your Certificates</h2>
+      <div id="certList" class="card-grid"></div>
+      <canvas id="certCanvas" width="1200" height="675" class="hidden"></canvas>
+    </section>
+
+    <!-- PROGRESS -->
+    <section id="progress" class="page container">
+      <h2>Your Progress</h2>
+      <div id="progressOverview" class="glass-card"></div>
+    </section>
+
+    <!-- AUTH MODAL (simple) -->
+    <div id="authModal" class="modal hidden">
+      <div class="modal-card glass-card">
+        <h3 id="authTitle">Login</h3>
+        <div id="authForm">
+          <input id="authName" placeholder="Full name (signup only)" class="hidden"/>
+          <input id="authEmail" placeholder="Email" />
+          <input id="authPassword" placeholder="Password" type="password" />
+          <div style="display:flex;gap:.5rem;margin-top:.6rem">
+            <button id="authSubmit" class="btn primary">Submit</button>
+            <button id="authCancel" class="btn ghost">Cancel</button>
+          </div>
+          <div id="authMsg" class="muted" style="margin-top:.6rem"></div>
+        </div>
+        <div style="margin-top:12px">
+          <small class="muted">Tip: This is mock auth stored in LocalStorage for demo only.</small>
+        </div>
+      </div>
     </div>
 
-  </section>
+    <!-- ABOUT -->
+    <section id="about" class="page container">
+      <h2>About Learnify</h2>
+      <p class="muted">A fully client-side learning platform demo built to show interactive UI, progress tracking, quizzes, and certificates for your portfolio.</p>
+    </section>
 
-  <!-- -------- COURSE DETAILS -------- -->
-  <section id="courseView" class="page">
-    <button class="back-btn" onclick="navigate('courses')">← Back</button>
-    <h2 id="courseTitle"></h2>
-    <div id="lessonList"></div>
-  </section>
+  </main>
 
-  <!-- -------- LESSON VIEW -------- -->
-  <section id="lessonView" class="page">
-    <button class="back-btn" onclick="navigate('courseView')">← Back</button>
-    <h2 id="lessonTitle"></h2>
-    <div id="lessonContent" class="lesson-content"></div>
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
 
-    <button class="primary-btn" id="startQuizBtn" onclick="startQuiz()">Start Quiz</button>
-  </section>
+  <!-- Main script -->
+  <script src="script.js"></script>
 
-  <!-- -------- QUIZ VIEW -------- -->
-  <section id="quizView" class="page">
-    <button class="back-btn" onclick="navigate('lessonView')">← Back</button>
-    <h2>Quiz</h2>
-
-    <div id="quizBox"></div>
-
-    <button class="primary-btn" id="submitQuizBtn" onclick="submitQuiz()">Submit Quiz</button>
-  </section>
-
-  <!-- -------- RESULTS -------- -->
-  <section id="resultView" class="page">
-    <h2>Results</h2>
-    <p id="resultText"></p>
-    <button class="primary-btn" onclick="generateCertificate()">Get Certificate</button>
-    <button class="secondary-btn" onclick="navigate('courses')">Go to Courses</button>
-  </section>
-
-  <!-- -------- CERTIFICATE -------- -->
-  <section id="certificateView" class="page">
-    <h2>Certificate of Completion</h2>
-
-    <div class="certificate glass">
-      <h3 id="certCourse"></h3>
-      <p>Certified to <strong id="certUser">Sayedrahim Sadat</strong></p>
-      <p>Completed Successfully</p>
-      <p id="certDate"></p>
-    </div>
-
-    <button class="primary-btn" onclick="navigate('home')">Back to Home</button>
-  </section>
-
-  <!-- -------- PROGRESS -------- -->
-  <section id="progress" class="page">
-    <h2>Your Progress</h2>
-    <div id="progressBox"></div>
-  </section>
-
-</main>
-
-<script src="script.js"></script>
+  <!-- Quick init of highlight.js -->
+  <script>document.addEventListener('DOMContentLoaded', ()=>{ try{ hljs.highlightAll(); }catch(e){} });</script>
 </body>
 </html>
