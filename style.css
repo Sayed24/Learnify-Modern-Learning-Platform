@@ -1,1 +1,113 @@
+/* RESET */
+* {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
 
+body {
+  background: linear-gradient(135deg, #1e1e2f, #293042);
+  color: #fff;
+  padding-top: 80px;
+}
+
+/* === GLASS EFFECT === */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* HEADER */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-btn {
+  margin-left: 10px;
+  padding: 10px 15px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* PAGES */
+.page { display: none; padding: 20px; }
+.page.active { display: block; }
+
+/* COURSE CARDS */
+.course-card {
+  padding: 20px;
+  margin: 15px 0;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+}
+
+.badge {
+  background: #4cc9f0;
+  color: #000;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+/* BUTTONS */
+.primary-btn {
+  padding: 12px 20px;
+  background: #4cc9f0;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.back-btn {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  background: #3a3a50;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* LESSON */
+.lesson-content {
+  margin-top: 15px;
+  line-height: 1.8;
+}
+
+code {
+  background: #111;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+/* CERTIFICATE */
+.certificate {
+  text-align: center;
+  margin: 20px auto;
+  padding: 30px;
+  width: 90%;
+}
