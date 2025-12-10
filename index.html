@@ -3,156 +3,152 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Learnify — Material UI Learning Platform</title>
+  <title>Learnify — Modern Learning Platform</title>
 
-  <!-- Roboto + Material icons (Material header) -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Highlight.js theme (VS Code dark) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
-
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/style.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- MATERIAL HEADER (solid bar) -->
-  <header class="md-header">
-    <div class="md-header-left">
-      <span class="brand">Learnify</span>
-    </div>
-    <div class="md-header-center">
-      <input id="searchInput" placeholder="Search courses, lessons..." />
-    </div>
-    <div class="md-header-right" id="navUserArea">
-      <!-- user area rendered by JS -->
-    </div>
-  </header>
+  <div id="app" class="app">
+    <!-- NAV -->
+    <nav class="nav glass">
+      <div class="nav-left">
+        <button id="menuBtn" class="icon-btn material"> <span class="material-icons">menu</span></button>
+        <a class="brand" data-route="home">Learnify</a>
+      </div>
+      <div class="nav-center">
+        <input id="searchInput" class="search" placeholder="Search courses or lessons..." />
+      </div>
+      <div class="nav-right">
+        <button id="themeToggle" class="icon-btn material" title="Toggle theme">
+          <span class="material-icons">dark_mode</span>
+        </button>
+        <div id="userArea"></div>
+      </div>
+    </nav>
 
-  <!-- MAIN LAYOUT -->
-  <div class="layout">
-    <!-- left nav (optional) -->
-    <aside class="left-nav">
-      <nav>
-        <a onclick="navigate('home')" class="nav-link">Home</a>
-        <a onclick="navigate('courses')" class="nav-link">Courses</a>
-        <a onclick="navigate('progress')" class="nav-link">Progress</a>
-        <a onclick="navigate('certs')" class="nav-link">Certificates</a>
-        <a onclick="navigate('about')" class="nav-link">About</a>
-      </nav>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar glass">
+      <ul>
+        <li><a data-route="home">Home</a></li>
+        <li><a data-route="courses">Courses</a></li>
+        <li><a data-route="dashboard">Dashboard</a></li>
+        <li><a data-route="certificates">Certificates</a></li>
+        <li><a data-route="about">About</a></li>
+      </ul>
     </aside>
 
-    <main class="main">
-      <!-- HOME -->
-      <section id="home" class="page active">
-        <div class="hero md-card">
+    <!-- MAIN -->
+    <main id="main">
+      <!-- VIEWS are injected or toggled -->
+      <section id="view-home" class="view">
+        <header class="hero glass">
           <div>
             <h1>Learn modern web skills</h1>
-            <p class="muted">Interactive courses, quizzes, progress and certificates — great for your portfolio.</p>
-            <div style="margin-top:12px">
-              <button class="btn primary" onclick="navigate('courses')">Browse Courses</button>
-            </div>
+            <p>Interactive courses, quizzes and certificates — built for your portfolio.</p>
+            <button class="btn primary" data-route="courses">Browse Courses</button>
           </div>
-          <div class="hero-illus">
-            <!-- placeholder image -->
-            <img src="assets/placeholder-hero.png" alt="learn" />
+          <div class="hero-illus glass-card">
+            <img src="assets/placeholder-hero.png" alt="learning" />
           </div>
-        </div>
+        </header>
+
+        <section class="featured container">
+          <h2>Featured Courses</h2>
+          <div id="featuredList" class="card-grid"></div>
+        </section>
 
         <section class="container">
-          <h2>Featured</h2>
-          <div id="featuredGrid" class="card-grid"></div>
+          <h2>Categories</h2>
+          <div id="categories" class="chips"></div>
         </section>
       </section>
 
-      <!-- COURSES -->
-      <section id="courses" class="page container">
-        <div class="page-header">
+      <section id="view-courses" class="view hidden">
+        <div class="container page-header">
           <h2>All Courses</h2>
-          <div class="controls">
-            <select id="filterCategory"></select>
-            <select id="sortBy">
-              <option value="new">Newest</option>
-              <option value="rating">Top Rated</option>
-              <option value="progress">My Progress</option>
-            </select>
+          <div class="filters">
+            <select id="filterCategory"><option value="">All categories</option></select>
+            <select id="sortBy"><option value="new">Newest</option><option value="progress">Progress</option></select>
           </div>
         </div>
-
-        <div id="coursesGrid" class="card-grid"></div>
+        <div id="coursesGrid" class="card-grid container"></div>
       </section>
 
-      <!-- COURSE VIEW -->
-      <section id="courseView" class="page container">
-        <button class="btn ghost back-btn" onclick="navigate('courses')">← Back</button>
-        <div id="courseHeader" class="md-card"></div>
-        <div id="lessonList" class="md-card"></div>
+      <section id="view-course" class="view hidden container">
+        <button class="btn ghost" id="backToCourses"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="courseHeader" class="course-header glass-card"></div>
+        <div id="lessonsList" class="lessons glass-card"></div>
       </section>
 
-      <!-- LESSON VIEW -->
-      <section id="lessonView" class="page container">
-        <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
-        <div id="lessonMeta" class="md-card"></div>
-        <div id="lessonBody" class="md-card lesson"></div>
-        <div style="margin-top:12px">
-          <button id="markCompleteBtn" class="btn primary">Mark Complete</button>
-          <button id="nextLessonBtn" class="btn ghost">Next Lesson</button>
-          <button id="startQuizBtn" class="btn primary">Start Quiz</button>
+      <section id="view-lesson" class="view hidden container">
+        <button class="btn ghost" id="backToCourse"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="lessonContent" class="lesson glass-card"></div>
+      </section>
+
+      <section id="view-quiz" class="view hidden container">
+        <button class="btn ghost" id="backFromQuiz"><span class="material-icons">arrow_back</span> Back</button>
+        <div id="quizWrapper" class="glass-card"></div>
+      </section>
+
+      <section id="view-dashboard" class="view hidden container">
+        <h2>Your Dashboard</h2>
+        <div class="grid-2">
+          <div class="glass-card">
+            <h3>Progress Overview</h3>
+            <canvas id="progressChart" height="200"></canvas>
+          </div>
+          <div class="glass-card">
+            <h3>Quick Stats</h3>
+            <div id="quickStats"></div>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3>In-progress Courses</h3>
+          <div id="inProgressList"></div>
         </div>
       </section>
 
-      <!-- QUIZ -->
-      <section id="quizView" class="page container">
-        <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
-        <div id="quizWrapper" class="md-card"></div>
-      </section>
-
-      <!-- CERTIFICATES -->
-      <section id="certs" class="page container">
-        <h2>Your Certificates</h2>
+      <section id="view-certificates" class="view hidden container">
+        <h2>Certificates</h2>
         <div id="certList" class="card-grid"></div>
-        <canvas id="certCanvas" width="1200" height="675" class="hidden"></canvas>
       </section>
 
-      <!-- PROGRESS -->
-      <section id="progress" class="page container">
-        <h2>Your Progress</h2>
-        <div id="progressOverview" class="md-card"></div>
+      <section id="view-login" class="view hidden container auth-card glass-card">
+        <h2>Login</h2>
+        <input id="loginEmail" placeholder="Email" />
+        <input id="loginPassword" placeholder="Password" type="password" />
+        <button id="loginBtn" class="btn primary">Login</button>
+        <p>Don't have an account? <a id="toSignup">Sign up</a></p>
       </section>
 
-      <!-- ABOUT -->
-      <section id="about" class="page container">
+      <section id="view-signup" class="view hidden container auth-card glass-card">
+        <h2>Create account</h2>
+        <input id="signupName" placeholder="Full name" />
+        <input id="signupEmail" placeholder="Email" />
+        <input id="signupPassword" placeholder="Password" type="password" />
+        <button id="signupBtn" class="btn primary">Sign up</button>
+        <p>Already have an account? <a id="toLogin">Login</a></p>
+      </section>
+
+      <section id="view-about" class="view hidden container">
         <h2>About Learnify</h2>
-        <p class="muted">This is a single-file demo (index.html + style.css + script.js) using Material header and modern UI. All data is client-side and saved to LocalStorage.</p>
+        <p>A modern front-end learning platform demo for your portfolio. Built to show interactive UI, progress tracking, quizzes, and certificates.</p>
       </section>
 
     </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div id="authModal" class="modal hidden">
-    <div class="modal-card md-card">
-      <h3 id="authTitle">Login</h3>
-      <div id="authForm">
-        <input id="authName" placeholder="Full name (signup only)" class="hidden" />
-        <input id="authEmail" placeholder="Email" />
-        <input id="authPassword" placeholder="Password" type="password" />
-        <div style="margin-top:10px;display:flex;gap:8px">
-          <button id="authSubmit" class="btn primary">Submit</button>
-          <button id="authCancel" class="btn ghost">Cancel</button>
-        </div>
-        <div id="authMsg" class="muted" style="margin-top:8px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toast" class="toast hidden"></div>
-
-  <!-- highlight.js -->
-  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
-
-  <!-- MAIN SCRIPT -->
-  <script src="script.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', ()=>{ try{ hljs.highlightAll(); }catch(e){} });</script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/app.js"></script>
 </body>
 </html>
