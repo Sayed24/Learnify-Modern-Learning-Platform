@@ -1,263 +1,83 @@
 /* =========================
-   RESET + BASE
+   Material header + global styles
+   Restored Material look (solid header) + cards + glass accents
 ========================= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
+
+:root{
+  --md-primary: #1e3a8a; /* deep indigo */
+  --accent: #4cc9f0;
+  --surface: #ffffff;
+  --muted: #6b7280;
+  --card-bg: #ffffff;
+  --text-dark: #0f1724;
 }
 
-body {
-  background: linear-gradient(135deg, #1e1e2f, #293042);
-  color: #fff;
-  padding-top: 80px;
-  transition: background 0.3s ease, color 0.3s ease;
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,system-ui,-apple-system,'Segoe UI',Arial;}
+html,body{height:100%;background:linear-gradient(180deg,#f3f7ff,#ffffff);color:var(--text-dark);}
+
+/* -------------------------
+   MATERIAL HEADER (solid)
+   ------------------------- */
+.md-header{
+  position:fixed; top:0; left:0; right:0; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; background:var(--md-primary); color:white; z-index:100;
+  box-shadow: 0 6px 20px rgba(16,24,40,0.12);
 }
 
-.dark-mode {
-  background: #121212 !important;
-  color: #e3e3e3 !important;
+.md-header .brand{font-weight:700;font-size:1.1rem}
+.md-header-center{flex:1;display:flex;justify-content:center}
+.md-header input{
+  width:480px; max-width:60%;
+  padding:8px 12px;border-radius:8px;border:0;
+  outline:none;background:rgba(255,255,255,0.12);color:white;
 }
 
-/* =========================
-   GLASS EFFECT
-========================= */
-.glass {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 25px rgba(0,0,0,0.18);
-}
+/* User area */
+.md-header-right{display:flex;align-items:center;gap:8px}
+.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);color:#000}
+.btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text-dark)}
 
-/* =========================
-   HEADER
-========================= */
-.header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 99;
-}
+/* Layout */
+.layout{display:flex;margin-top:64px}
+.left-nav{width:220px;padding:18px}
+.left-nav nav{display:flex;flex-direction:column;gap:8px}
+.nav-link{padding:10px;border-radius:8px;cursor:pointer;color:var(--md-primary)}
+.main{flex:1;padding:28px 36px}
 
-.logo {
-  font-size: 22px;
-  font-weight: 700;
-}
+/* Container & cards */
+.container{max-width:1100px;margin:0 auto}
+.md-card{background:var(--card-bg);border-radius:12px;padding:16px;border:1px solid rgba(16,24,40,0.04);box-shadow: 0 8px 24px rgba(2,6,23,0.04);margin-bottom:14px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 
-.nav {
-  display: flex;
-  gap: 10px;
-}
+/* Hero */
+.hero{display:flex;justify-content:space-between;align-items:center;padding:20px}
+.hero-illus img{max-width:240px;opacity:.98}
 
-.nav-btn {
-  background: rgba(255,255,255,0.1);
-  padding: 10px 15px;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.25s;
-}
+/* Small helpers */
+.muted{color:var(--muted)}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef7ff;color:var(--md-primary);font-weight:700}
 
-.nav-btn:hover {
-  background: rgba(255,255,255,0.2);
-}
+/* Course card */
+.course-card{padding:14px;border-radius:12px;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid rgba(16,24,40,0.03);cursor:pointer}
+.course-card:hover{transform:translateY(-6px);transition:transform .18s}
 
-/* Responsive Header */
-@media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
+/* Lesson */
+.lesson pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}
+.lesson code{font-family:monospace}
 
-/* =========================
-   PAGE HANDLING
-========================= */
-.page {
-  display: none;
-  padding: 20px;
-  animation: fade 0.3s ease;
-}
+/* Modal */
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.35);z-index:200}
+.hidden{display:none}
 
-.page.active {
-  display: block;
-}
+/* Toast */
+.toast{position:fixed;right:20px;bottom:20px;padding:10px 14px;border-radius:8px;background:var(--md-primary);color:white}
 
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* =========================
-   BUTTONS
-========================= */
-.primary-btn {
-  padding: 12px 20px;
-  background: #4cc9f0;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: 15px 0;
-  transition: 0.25s;
-}
-
-.primary-btn:hover {
-  background: #38b4dc;
-}
-
-.secondary-btn {
-  padding: 12px 20px;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.back-btn {
-  padding: 10px 15px;
-  background: #3a3a50;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
-
-/* =========================
-   HERO SECTION
-========================= */
-.hero {
-  margin-top: 20px;
-  padding: 20px;
-  border-left: 5px solid #4cc9f0;
-}
-
-/* =========================
-   COURSE CARDS
-========================= */
-.course-card {
-  padding: 20px;
-  margin: 15px 0;
-  cursor: pointer;
-  transition: 0.3s;
-  border-radius: 12px;
-}
-
-.course-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255,255,255,0.12);
-}
-
-.course-list {
-  margin-top: 20px;
-}
-
-.badge {
-  background: #4cc9f0;
-  padding: 5px 12px;
-  border-radius: 8px;
-  color: #000;
-  margin-top: 10px;
-  display: inline-block;
-}
-
-/* =========================
-   LESSON CONTENT
-========================= */
-.lesson-content {
-  margin-top: 15px;
-  line-height: 1.8;
-}
-
-.lesson-content ul {
-  margin-left: 20px;
-}
-
-pre {
-  background: #111;
-  padding: 12px;
-  border-radius: 8px;
-  overflow-x: auto;
-  margin: 10px 0;
-}
-
-code {
-  font-family: monospace;
-  color: #4cc9f0;
-}
-
-/* =========================
-   QUIZ
-========================= */
-#quizBox .glass {
-  margin: 15px 0;
-}
-
-label {
-  cursor: pointer;
-  display: block;
-  margin: 4px 0;
-}
-
-/* =========================
-   CERTIFICATE
-========================= */
-.certificate {
-  margin: 20px auto;
-  padding: 30px;
-  text-align: center;
-  width: 90%;
-  max-width: 500px;
-  border: 2px solid #4cc9f0;
-  border-radius: 18px;
-  box-shadow: 0 0 20px rgba(76,201,240,0.4);
-}
-
-/* =========================
-   PROGRESS PAGE
-========================= */
-.progress-list {
-  margin-top: 20px;
-}
-
-.progress-card {
-  padding: 20px;
-  margin: 15px 0;
-  border-left: 4px solid #4cc9f0;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.08);
-}
-
-/* =========================
-   DARK MODE SUPPORT
-========================= */
-.dark-mode .glass {
-  background: rgba(255,255,255,0.05);
-}
-
-.dark-mode .primary-btn {
-  background: #9be4ff;
-}
-
-.dark-mode .course-card:hover {
-  background: rgba(255,255,255,0.15);
-}
-
-.dark-mode pre {
-  background: #222;
-}
-
-.dark-mode .certificate {
-  border-color: #9be4ff;
-  box-shadow: 0 0 20px rgba(155,228,255,0.4);
+/* Responsive */
+@media (max-width:900px){
+  .left-nav{display:none}
+  .md-header input{width:48%}
+  .main{padding:18px}
 }
