@@ -11,15 +11,18 @@
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
-  <!-- Chart.js -->
+  <!-- Chart.js (stable) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- GSAP (animations) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" integrity="" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" crossorigin="anonymous"></script>
 
+  <!-- Main stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
   <meta name="robots" content="index, follow" />
+  <meta name="description" content="Learnify — Google Material Dashboard style learning platform (portfolio project).">
 </head>
 <body>
   <div id="app" class="theme-light">
@@ -30,7 +33,8 @@
         <button id="sidebar-toggle" class="icon-btn" aria-label="Toggle sidebar">
           <span class="material-icons-outlined">menu</span>
         </button>
-        <div class="brand" onclick="navigate('home')">
+
+        <div class="brand" onclick="showPage('dashboard')">
           <div class="logo">L</div>
           <div class="brand-text">
             <strong>Learnify</strong>
@@ -45,24 +49,31 @@
           <input id="global-search" placeholder="Search courses, lessons..." aria-label="Search" />
         </div>
 
-        <button id="toggle-theme" class="icon-btn" title="Toggle theme"><span class="material-icons-outlined">light_mode</span></button>
-        <button class="icon-btn" id="notifications-btn" title="Notifications"><span class="material-icons-outlined">notifications</span></button>
+        <button id="toggle-theme" class="icon-btn" title="Toggle theme">
+          <span class="material-icons-outlined">light_mode</span>
+        </button>
+
+        <button class="icon-btn" id="notifications-btn" title="Notifications">
+          <span class="material-icons-outlined">notifications</span>
+        </button>
+
         <button class="btn primary" id="login-btn">Sign In</button>
       </div>
     </header>
 
     <div class="main-wrap">
-      <!-- Sidebar -->
-      <aside id="sidebar" class="sidebar">
+
+      <!-- Sidebar (collapsible by default even on desktop) -->
+      <aside id="sidebar" class="sidebar collapsed">
         <nav class="nav">
-          <a href="#dashboard" data-route="dashboard" class="nav-link active"><span class="material-icons-outlined">dashboard</span>Dashboard</a>
-          <a href="#courses" data-route="courses" class="nav-link"><span class="material-icons-outlined">school</span>Courses</a>
-          <a href="#explore" data-route="explore" class="nav-link"><span class="material-icons-outlined">explore</span>Explore</a>
-          <a href="#achievements" data-route="achievements" class="nav-link"><span class="material-icons-outlined">workspace_premium</span>Achievements</a>
-          <a href="#profile" data-route="profile" class="nav-link"><span class="material-icons-outlined">person</span>Profile</a>
-          <a href="#settings" data-route="settings" class="nav-link"><span class="material-icons-outlined">settings</span>Settings</a>
+          <a href="#dashboard" data-route="dashboard" class="nav-link active"><span class="material-icons-outlined">dashboard</span><span class="nav-label">Dashboard</span></a>
+          <a href="#courses" data-route="courses" class="nav-link"><span class="material-icons-outlined">school</span><span class="nav-label">Courses</span></a>
+          <a href="#explore" data-route="explore" class="nav-link"><span class="material-icons-outlined">explore</span><span class="nav-label">Explore</span></a>
+          <a href="#achievements" data-route="achievements" class="nav-link"><span class="material-icons-outlined">workspace_premium</span><span class="nav-label">Achievements</span></a>
+          <a href="#profile" data-route="profile" class="nav-link"><span class="material-icons-outlined">person</span><span class="nav-label">Profile</span></a>
+          <a href="#settings" data-route="settings" class="nav-link"><span class="material-icons-outlined">settings</span><span class="nav-label">Settings</span></a>
           <div class="nav-sep"></div>
-          <a href="#certificate" data-route="certificate" class="nav-link"><span class="material-icons-outlined">emoji_events</span>Certificate</a>
+          <a href="#certificate" data-route="certificate" class="nav-link"><span class="material-icons-outlined">emoji_events</span><span class="nav-label">Certificate</span></a>
         </nav>
 
         <div class="sidebar-footer">
@@ -70,7 +81,7 @@
         </div>
       </aside>
 
-      <!-- Content area -->
+      <!-- Content -->
       <main class="content">
 
         <!-- DASHBOARD -->
@@ -115,7 +126,7 @@
           <div class="section">
             <h3>Quick actions</h3>
             <div class="row gap">
-              <button class="btn primary" onclick="navigate('courses')">Explore Courses</button>
+              <button class="btn primary" onclick="showPage('courses')">Explore Courses</button>
               <button class="btn" onclick="openUploadModal()">Upload Resource</button>
               <button class="btn" onclick="downloadReadme()">Download README</button>
             </div>
@@ -154,7 +165,7 @@
               <div class="muted" id="course-meta">Category • Level • Lessons</div>
             </div>
             <div class="row gap">
-              <button class="btn" onclick="navigate('courses')">← Back</button>
+              <button class="btn" onclick="showPage('courses')">← Back</button>
               <button class="btn primary" id="start-course-btn">Start Course</button>
             </div>
           </div>
@@ -200,7 +211,7 @@
           <div class="section-header row space-between">
             <div><h2 id="lesson-title">Lesson</h2><div class="muted" id="lesson-meta">Course • Duration</div></div>
             <div class="row gap">
-              <button class="btn" onclick="navigate('course-detail')">← Back</button>
+              <button class="btn" onclick="showPage('course-detail')">← Back</button>
               <button class="btn primary" id="mark-complete-btn">Mark Completed</button>
             </div>
           </div>
@@ -215,7 +226,7 @@
           <div class="section-header row space-between">
             <div><h2 id="quiz-title">Quiz</h2><div class="muted" id="quiz-meta">Course quiz</div></div>
             <div class="row gap">
-              <button class="btn" onclick="navigate('course-detail')">← Back</button>
+              <button class="btn" onclick="showPage('course-detail')">← Back</button>
             </div>
           </div>
           <div id="quiz-card" class="card"></div>
@@ -269,6 +280,7 @@
         </section>
 
       </main> <!-- end content -->
+
     </div> <!-- end main-wrap -->
 
     <!-- Footer -->
@@ -284,6 +296,7 @@
 
   </div>
 
+  <!-- Main JS -->
   <script src="script.js"></script>
 </body>
 </html>
