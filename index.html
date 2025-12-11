@@ -3,196 +3,233 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Learnify — Modern Learning Platform</title>
+  <title>Learnify • Portfolio Project</title>
 
   <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Highlight.js (code blocks) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/vs2015.min.css">
-  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
-
-  <!-- Chart.js for dashboard -->
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Main style -->
+  <!-- Style -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Meta for GitHub Pages friendly -->
+  <meta name="robots" content="index, follow" />
 </head>
 <body>
+  <div id="app" class="theme-light">
 
-  <!-- MATERIAL HEADER -->
-  <header class="md-header">
-    <div class="md-left">
-      <button id="menuToggle" class="icon-btn" aria-label="menu"><span class="material-icons">menu</span></button>
-      <div class="brand" onclick="navigate('home')">Learnify</div>
-    </div>
-
-    <div class="md-center">
-      <input id="globalSearch" placeholder="Search courses, lessons..." />
-    </div>
-
-    <div class="md-right" id="navUserArea"></div>
-  </header>
-
-  <div class="layout">
-    <!-- LEFT NAV -->
-    <aside class="left-nav">
-      <nav>
-        <a class="nav-link" onclick="navigate('home')">Home</a>
-        <a class="nav-link" onclick="navigate('courses')">Courses</a>
-        <a class="nav-link" onclick="navigate('dashboard')">Dashboard</a>
-        <a class="nav-link" onclick="navigate('certs')">Certificates</a>
-        <a class="nav-link" onclick="navigate('about')">About</a>
-      </nav>
-
-      <div class="theme-toggle">
-        <label class="switch"><input id="themeToggle" type="checkbox"><span class="slider"></span></label>
-        <small class="muted">Dark mode</small>
+    <!-- Header -->
+    <header class="topbar">
+      <div class="brand" onclick="navigate('home')">
+        <strong>Learnify</strong>
+        <span class="tag">Portfolio Project</span>
       </div>
-    </aside>
 
-    <!-- MAIN -->
-    <main class="main">
-      <!-- HOME -->
-      <section id="home" class="page active container">
-        <div class="hero md-card">
-          <div class="hero-text">
-            <h1>Learn modern web skills</h1>
-            <p class="muted">Interactive courses, quizzes, projects and certificates — built for your portfolio.</p>
-            <div class="hero-cta">
-              <button class="btn primary" onclick="navigate('courses')">Browse Courses</button>
-              <button class="btn ghost" onclick="navigate('dashboard')">Dashboard</button>
+      <div class="top-actions">
+        <button class="icon-btn" id="toggle-theme" title="Toggle theme">🌓</button>
+        <button class="btn primary" id="login-btn">Sign In</button>
+      </div>
+    </header>
+
+    <!-- Main layout -->
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <nav>
+          <a href="#home" data-route="home" class="nav-link active">Home</a>
+          <a href="#explore" data-route="explore" class="nav-link">Explore</a>
+          <a href="#courses" data-route="courses" class="nav-link">Courses</a>
+          <a href="#dashboard" data-route="dashboard" class="nav-link">Dashboard</a>
+          <a href="#achievements" data-route="achievements" class="nav-link">Achievements</a>
+          <a href="#profile" data-route="profile" class="nav-link">Profile</a>
+          <a href="#notifications" data-route="notifications" class="nav-link">Notifications</a>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <main class="content">
+        <!-- Home -->
+        <section id="home" class="page active">
+          <div class="hero">
+            <div>
+              <h1>Learnify — A modern learning platform (Portfolio)</h1>
+              <p>Show employers a product-like project: courses, lessons, quizzes, certificates, progress and a dashboard — all front-end only.</p>
+              <div class="row gap">
+                <button class="btn primary" onclick="navigate('explore')">Explore Courses</button>
+                <button class="btn" onclick="downloadReadme()">README</button>
+              </div>
+            </div>
+            <div class="hero-card">
+              <h3>Featured Course</h3>
+              <div class="course-card small">
+                <h4 id="featured-title">HTML Basics</h4>
+                <p class="muted">Web Development • Beginner</p>
+                <div class="meta">
+                  <div>⭐ 4.8</div>
+                  <div>6 lessons</div>
+                </div>
+                <button class="btn tiny" onclick="openCourse('html-basics')">Start</button>
+              </div>
             </div>
           </div>
-          <div class="hero-img">
-            <!-- placeholder image file optional -->
-            <img src="assets/placeholder-hero.png" alt="hero" />
-          </div>
-        </div>
 
-        <section class="container">
-          <h2>Featured Courses</h2>
-          <div id="featuredGrid" class="card-grid"></div>
+          <section class="section">
+            <h3>Why this project?</h3>
+            <div class="features-grid">
+              <div class="feature">
+                <h4>Product-like</h4>
+                <p>Feels like a real SaaS learning product — not just a static portfolio page.</p>
+              </div>
+              <div class="feature">
+                <h4>LocalStorage State</h4>
+                <p>All progress, preferences, and session are saved locally per user.</p>
+              </div>
+              <div class="feature">
+                <h4>Accessible</h4>
+                <p>Keyboard friendly, ARIA-ready components and focus states.</p>
+              </div>
+              <div class="feature">
+                <h4>Deploy Ready</h4>
+                <p>Drop-in files, works on GitHub Pages — instructions below.</p>
+              </div>
+            </div>
+          </section>
         </section>
 
-        <section class="container">
-          <h2>Categories</h2>
-          <div id="categoryChips" class="chips"></div>
-        </section>
-
-        <section class="container testimonials md-card">
-          <h3>What learners say</h3>
-          <div class="test-grid">
-            <div class="test-card">"Clean design — helped me land interviews!" — A.</div>
-            <div class="test-card">"Great hands-on projects." — B.</div>
-            <div class="test-card">"Quizzes and certs are perfect for portfolio." — C.</div>
+        <!-- Explore -->
+        <section id="explore" class="page">
+          <div class="section">
+            <div class="row space-between">
+              <h2>Explore Courses</h2>
+              <input id="search" placeholder="Search courses..." aria-label="Search courses" />
+            </div>
+            <div id="courses-grid" class="grid"></div>
           </div>
         </section>
 
-        <footer class="site-footer md-card">
-          <div>© Learnify — Demo Portfolio Project</div>
-          <div class="muted">Links · Privacy · Terms</div>
-        </footer>
-      </section>
-
-      <!-- COURSES -->
-      <section id="courses" class="page container">
-        <div class="page-header">
-          <h2>All Courses</h2>
-          <div class="controls">
-            <select id="filterCategory"><option value="">All categories</option></select>
-            <select id="filterDifficulty"><option value="">All difficulty</option><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select>
-            <select id="sortBy"><option value="new">Newest</option><option value="rating">Top Rated</option><option value="progress">My Progress</option></select>
+        <!-- Courses list (same as explore but used for routing) -->
+        <section id="courses" class="page">
+          <div class="section">
+            <h2>All Courses</h2>
+            <div id="courses-grid-2" class="grid"></div>
           </div>
-        </div>
+        </section>
 
-        <div id="coursesGrid" class="card-grid"></div>
-      </section>
-
-      <!-- COURSE DETAIL -->
-      <section id="courseView" class="page container">
-        <button class="btn ghost back-btn" onclick="navigate('courses')">← Back</button>
-        <div id="courseHeader" class="md-card"></div>
-        <div id="lessonList" class="md-card"></div>
-      </section>
-
-      <!-- LESSON VIEW -->
-      <section id="lessonView" class="page container">
-        <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
-        <div id="lessonMeta" class="md-card"></div>
-        <article id="lessonBody" class="md-card lesson"></article>
-
-        <div class="lesson-actions">
-          <button id="prevLessonBtn" class="btn ghost">Previous</button>
-          <button id="markCompleteBtn" class="btn primary">Mark Complete</button>
-          <button id="nextLessonBtn" class="btn ghost">Next</button>
-          <button id="lessonQuizBtn" class="btn primary">Take Quiz</button>
-        </div>
-      </section>
-
-      <!-- QUIZ VIEW -->
-      <section id="quizView" class="page container">
-        <button class="btn ghost back-btn" onclick="goBackSafe()">← Back</button>
-        <div id="quizWrapper" class="md-card"></div>
-      </section>
-
-      <!-- CERTIFICATES -->
-      <section id="certs" class="page container">
-        <h2>Certificates</h2>
-        <div id="certList" class="card-grid"></div>
-        <canvas id="certCanvas" width="1200" height="675" class="hidden"></canvas>
-      </section>
-
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="page container">
-        <h2>Dashboard</h2>
-        <div class="dashboard-grid">
-          <div class="md-card">
-            <h3>Your Progress</h3>
-            <div id="dashProgress"></div>
+        <!-- Course detail -->
+        <section id="course-detail" class="page">
+          <div class="section">
+            <button class="btn ghost" onclick="navigate('courses')">← Back</button>
+            <div id="course-detail-card" class="course-detail"></div>
           </div>
-          <div class="md-card">
-            <h3>Streaks & XP</h3>
-            <div id="dashStats"></div>
-          </div>
-          <div class="md-card" style="grid-column: span 2;">
-            <h3>Progress Chart</h3>
-            <canvas id="progressChart"></canvas>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ABOUT -->
-      <section id="about" class="page container">
-        <h2>About Learnify</h2>
-        <p class="muted">This demo shows a modern front-end learning platform built with HTML/CSS/JS and LocalStorage for persistence.</p>
-      </section>
-    </main>
-  </div>
+        <!-- Lesson viewer -->
+        <section id="lesson" class="page">
+          <div class="section">
+            <button class="btn ghost" onclick="navigate('course-detail')">← Back</button>
+            <div id="lesson-card" class="lesson-card"></div>
+          </div>
+        </section>
 
-  <!-- AUTH MODAL -->
-  <div id="authModal" class="modal hidden">
-    <div class="modal-card md-card">
-      <h3 id="authTitle">Login</h3>
-      <div id="authForm">
-        <input id="authName" placeholder="Full name (signup only)" class="hidden" />
-        <input id="authEmail" placeholder="Email" />
-        <input id="authPassword" placeholder="Password" type="password" />
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button id="authSubmit" class="btn primary">Submit</button>
-          <button id="authCancel" class="btn ghost">Cancel</button>
-        </div>
-        <div id="authMsg" class="muted" style="margin-top:8px"></div>
+        <!-- Quiz -->
+        <section id="quiz" class="page">
+          <div class="section">
+            <button class="btn ghost" onclick="navigate('course-detail')">← Back</button>
+            <div id="quiz-card"></div>
+          </div>
+        </section>
+
+        <!-- Certificate -->
+        <section id="certificate" class="page">
+          <div class="section">
+            <h2>Your Certificate</h2>
+            <canvas id="certificate-canvas" width="1000" height="700" style="max-width:100%;"></canvas>
+            <div class="row gap">
+              <input id="cert-name" placeholder="Your name" />
+              <button class="btn primary" onclick="generateCertificate()">Generate & Download</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="page">
+          <div class="section">
+            <h2>Dashboard</h2>
+            <div class="row gap wrap">
+              <div class="card small">
+                <h3 id="xp-count">XP: 0</h3>
+                <p class="muted">Total experience points</p>
+              </div>
+              <div class="card small">
+                <h3 id="courses-inprogress">In Progress: 0</h3>
+                <p class="muted">Courses currently in progress</p>
+              </div>
+              <div class="card small">
+                <h3 id="courses-completed">Completed: 0</h3>
+                <p class="muted">Courses finished</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Progress Chart</h3>
+              <canvas id="progress-chart" height="120"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Achievements -->
+        <section id="achievements" class="page">
+          <div class="section">
+            <h2>Achievements</h2>
+            <div id="badges" class="row wrap gap"></div>
+          </div>
+        </section>
+
+        <!-- Profile -->
+        <section id="profile" class="page">
+          <div class="section">
+            <h2>Profile</h2>
+            <div class="card">
+              <label>Display name</label>
+              <input id="profile-name" />
+              <label>Avatar URL (optional)</label>
+              <input id="profile-avatar" />
+              <div class="row gap">
+                <button class="btn primary" id="save-profile">Save</button>
+                <button class="btn" onclick="logout()">Logout</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Notifications -->
+        <section id="notifications" class="page">
+          <div class="section">
+            <h2>Notifications</h2>
+            <ul id="notifications-list" class="list"></ul>
+          </div>
+        </section>
+
+      </main> <!-- end content -->
+    </div> <!-- end layout -->
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>
+        <small>Learnify — Portfolio Project • Built with HTML, CSS, JS • Deploy to GitHub Pages</small>
       </div>
-    </div>
+      <div>
+        <small><a href="#" onclick="navigate('certificate')">Certificate demo</a></small>
+      </div>
+    </footer>
+
+    <!-- Modals / Login -->
+    <div id="modal-root"></div>
+
   </div>
 
-  <!-- TOAST -->
-  <div id="toast" class="toast hidden"></div>
-
-  <!-- Main script -->
   <script src="script.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', ()=>{ try{ hljs.highlightAll(); }catch(e){} });</script>
 </body>
 </html>
