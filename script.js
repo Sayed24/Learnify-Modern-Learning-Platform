@@ -1,426 +1,533 @@
-/* script.js — Learnify full front-end app
-   Features included:
-   - Courses / lessons / quizzes
-   - Progress saved to LocalStorage per user
-   - Mock auth (signup/login/logout)
-   - Dashboard with Chart.js
-   - Certificate generation (canvas -> PNG)
-   - Search, filter, sort
-   - Dark/Light mode saved to LocalStorage
-   - Toast notifications, animations, responsive
-*/
+// ===== Learnify — script.js =====
+// Simple SPA with LocalStorage state, sample data, routing, quiz, certificate (canvas), and Chart.js dashboard.
 
-/* =========================
-   LocalStorage keys & helpers
-========================= */
-const LS = {
-  COURSES: 'learnify_courses_final',
-  USERS: 'learnify_users_final',
-  CURRENT: 'learnify_current_final',
-  PROGRESS: 'learnify_progress_final',
-  CERTS: 'learnify_certs_final',
-  THEME: 'learnify_theme_final'
-};
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
-function read(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; } }
-function toast(msg, ms=2500){ const t=$('#toast'); if(!t) return; t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), ms); }
-
-/* =========================
-   Sample data (if absent)
-========================= */
-const SAMPLE = [
-  { id:'c-html', title:'HTML & CSS Fundamentals', category:'Web Dev', difficulty:'Beginner', rating:4.8, thumbnail:'assets/html-thumb.png',
-    description:' Learn markup & styles.',
-    lessons:[
-      { id:'c-html-l1', title:'Intro to HTML', duration:'8m', content:`<h3>Intro to HTML</h3><p>HTML is structure of the web.</p><pre><code>&lt;h1&gt;Hello&lt;/h1&gt;</code></pre>` },
-      { id:'c-html-l2', title:'Semantic Tags', duration:'10m', content:`<h3>Semantic Tags</h3><p>header, main, footer</p>` },
-      { id:'c-html-l3', title:'Flexbox', duration:'15m', content:`<h3>Flexbox</h3><p>Layout in 1D</p>` }
+// ---------- Sample data ----------
+const SAMPLE_COURSES = [
+  {
+    id: "html-basics",
+    title: "HTML Basics",
+    category: "Web Development",
+    difficulty: "Beginner",
+    rating: { total: 48, count: 10 },
+    lessons: [
+      { id: "l1", title: "Introduction to HTML", content: "<p>HTML stands for HyperText Markup Language. It's the skeleton of web pages.</p>", duration: 5, codeBlocks: ["<!doctype html>"] },
+      { id: "l2", title: "Elements & Tags", content: "<p>Tags create elements like <strong>&lt;p&gt;</strong>, <strong>&lt;a&gt;</strong> and <strong>&lt;div&gt;</strong>.</p>", duration: 8 },
+      { id: "l3", title: "Attributes & Links", content: "<p>Attributes provide additional info; links use <code>href</code>.</p>", duration: 7 },
+      { id: "l4", title: "Forms & Inputs", content: "<p>Forms collect user data.</p>", duration: 10 },
+      { id: "l5", title: "Semantic HTML", content: "<p>Use semantic tags like <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>.</p>", duration: 6 },
+      { id: "l6", title: "Project: Simple Page", content: "<p>Build a simple page combining what you've learned.</p>", duration: 12 }
     ],
-    quiz:{ questions:[
-      { q:'What does HTML stand for?', choices:['HyperText Markup Language','Home Tool Markup Language','Hyperlinks Text Markup'], a:0},
-      { q:'Which tag is a block-level heading?', choices:['<div>','<h1>','<span>'], a:1}
-    ]}
+    quiz: [
+      { question: "What does HTML stand for?", choices: ["HyperText Markup Language","Hyperlink Markup Language","Home Tool Markup Language"], correct: 0, explanation: "HyperText Markup Language." },
+      { question: "Which tag creates a link?", choices: ["<a>","<link>","<href>"], correct: 0, explanation: "<a> is used for links with href attribute." },
+      { question: "Semantic HTML includes which tag?", choices: ["<header>","<div>","<span>"], correct: 0, explanation: "<header> is semantic." }
+    ]
   },
-  { id:'c-js', title:'JavaScript Essentials', category:'Web Dev', difficulty:'Beginner', rating:4.7, thumbnail:'assets/js-thumb.png',
-    description:'Core JS for interactive apps.',
-    lessons:[
-      { id:'c-js-l1', title:'Variables & Types', duration:'10m', content:`<h3>Variables</h3><pre><code>let a = 1;</code></pre>` },
-      { id:'c-js-l2', title:'Functions', duration:'12m', content:`<h3>Functions</h3><pre><code>function sum(a,b){return a+b}</code></pre>` }
+  {
+    id: "js-fundamentals",
+    title: "JavaScript Fundamentals",
+    category: "Web Development",
+    difficulty: "Beginner",
+    rating: { total: 32, count: 8 },
+    lessons: [
+      { id: "j1", title: "Intro to JS", content: "<p>JavaScript adds interactivity to web pages.</p>", duration: 10 },
+      { id: "j2", title: "Variables & Types", content: "<p>let, const, var and types.</p>", duration: 12 },
+      { id: "j3", title: "DOM Manipulation", content: "<p>Query elements and change content.</p>", duration: 15 }
     ],
-    quiz:{ questions:[
-      { q:'Which keyword declares block scope?', choices:['var','let','const'], a:1},
-      { q:'=== checks both', choices:['value','type','value and type'], a:2}
-    ]}
-  },
-  { id:'c-projects', title:'Front-End Projects', category:'Projects', difficulty:'Intermediate', rating:4.9, thumbnail:'assets/projects-thumb.png',
-    description:'Build portfolio-ready projects.', lessons:[ { id:'c-proj-l1', title:'Portfolio Site', duration:'14m', content:'<p>Structure & showcase</p>' } ],
-    quiz:{ questions:[ { q:'Which project shows UI skills?', choices:['Portfolio','Database Admin'], a:0 } ] }
+    quiz: [
+      { question: "Which is a JS keyword to declare a variable?", choices: ["let","int","varx"], correct: 0, explanation: "let is correct." }
+    ]
   }
 ];
-if (!localStorage.getItem(LS.COURSES)) save(LS.COURSES, SAMPLE);
 
-/* =========================
-   App State
-========================= */
-let COURSES = read(LS.COURSES, SAMPLE);
-let USERS = read(LS.USERS, []);
-let CURRENT = read(LS.CURRENT, null);
-let PROGRESS = read(LS.PROGRESS, {});
-let CERTS = read(LS.CERTS, []);
-let HISTORY = [];
+// ---------- Storage helpers ----------
+const STORAGE_KEYS = {
+  USERS: "learnifyUsers",
+  SESSION: "learnifySession",
+  PROGRESS: "learnifyProgress",
+  NOTIFS: "learnifyNotifications",
+  PROFILE: "learnifyProfile",
+  THEME: "learnifyTheme"
+};
 
-/* =========================
-   Theme
-========================= */
-(function initTheme(){
-  const t = localStorage.getItem(LS.THEME) || 'light';
-  if (t === 'dark') document.body.classList.add('dark');
-  $('#themeToggle').checked = t === 'dark';
-})();
-$('#themeToggle')?.addEventListener('change', (e)=>{
-  if (e.target.checked){ document.body.classList.add('dark'); localStorage.setItem(LS.THEME,'dark'); }
-  else { document.body.classList.remove('dark'); localStorage.setItem(LS.THEME,'light'); }
+function read(key){ try{ return JSON.parse(localStorage.getItem(key)) || null }catch(e){return null} }
+function write(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+// Ensure initial data
+if(!read(STORAGE_KEYS.PROGRESS)) write(STORAGE_KEYS.PROGRESS,{});
+if(!read(STORAGE_KEYS.NOTIFS)) write(STORAGE_KEYS.NOTIFS,[]);
+if(!read(STORAGE_KEYS.PROFILE)) write(STORAGE_KEYS.PROFILE, { name: "Guest", avatar: "" });
+if(!read(STORAGE_KEYS.THEME)) write(STORAGE_KEYS.THEME, "light");
+
+// ---------- Tiny router ----------
+const pages = Array.from(document.querySelectorAll('.page'));
+function showSection(id){
+  pages.forEach(p=>p.id === id ? p.classList.add('active') : p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.route === id));
+  history.pushState({page:id}, "", `#${id}`);
+  // Some pages need refresh
+  if(id === 'courses' || id === 'explore') renderCourses();
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'achievements') renderAchievements();
+  if(id === 'notifications') renderNotifications();
+  if(id === 'profile') loadProfile();
+}
+window.addEventListener('popstate', (e) => {
+  const id = (location.hash && location.hash.replace('#','')) || 'home';
+  showSectionNoPush(id);
+});
+function showSectionNoPush(id){
+  pages.forEach(p=>p.id === id ? p.classList.add('active') : p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.route === id));
+  if(id === 'courses' || id === 'explore') renderCourses();
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'achievements') renderAchievements();
+  if(id === 'notifications') renderNotifications();
+  if(id === 'profile') loadProfile();
+}
+function navigate(id){
+  showSection(id);
+}
+
+// Attach nav links
+document.querySelectorAll('.nav-link').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const id = a.dataset.route;
+    showSection(id);
+  });
 });
 
-/* =========================
-   Render nav user area
-========================= */
-function renderNavUserArea(){
-  const area = $('#navUserArea');
-  if (!area) return;
-  if (CURRENT){ area.innerHTML = `<span class="muted">Hi, ${CURRENT.name}</span> <button class="btn ghost" id="logoutBtn">Logout</button>`; $('#logoutBtn').onclick = ()=> { localStorage.removeItem(LS.CURRENT); CURRENT=null; renderNavUserArea(); toast('Logged out'); renderDashboard(); renderCertificates(); }; }
-  else { area.innerHTML = `<button class="btn ghost" id="loginBtn">Login</button> <button class="btn primary" id="signupBtn">Sign up</button>`; $('#loginBtn').onclick=()=>openAuth('login'); $('#signupBtn').onclick=()=>openAuth('signup'); }
+// Boot to correct hash
+const startPage = (location.hash && location.hash.replace('#','')) || 'home';
+showSectionNoPush(startPage);
+
+// ---------- UI renderers ----------
+function renderCourses(filter = "") {
+  const grid = document.getElementById('courses-grid');
+  const grid2 = document.getElementById('courses-grid-2');
+  [grid, grid2].forEach(g=>g && (g.innerHTML = ""));
+  const q = (document.getElementById('search')?.value || "").toLowerCase();
+  SAMPLE_COURSES.forEach(course=>{
+    if(filter && course.category !== filter) return;
+    if(q && !course.title.toLowerCase().includes(q) && !course.category.toLowerCase().includes(q)) return;
+    const el = document.createElement('div');
+    el.className = "course-card card";
+    el.innerHTML = `
+      <h3>${course.title}</h3>
+      <p class="muted">${course.category} • ${course.difficulty}</p>
+      <p class="muted">${course.lessons.length} lessons • ⭐ ${(course.rating.total/course.rating.count).toFixed(1)}</p>
+      <div class="row gap" style="margin-top:8px">
+        <button class="btn" onclick="openCourse('${course.id}')">View</button>
+        <button class="btn primary" onclick="startCourse('${course.id}')">Start</button>
+      </div>
+    `;
+    if(grid) grid.appendChild(el);
+    if(grid2) grid2.appendChild(el.cloneNode(true));
+  });
 }
-renderNavUserArea();
+document.getElementById('search')?.addEventListener('input', ()=>renderCourses());
 
-/* =========================
-   Navigation
-========================= */
-function hidePages(){ $$('.page').forEach(p=>p.classList.remove('active')); }
-function navigate(route){
-  HISTORY.push(route);
-  hidePages();
-  const el = $('#'+route);
-  if (el) el.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if (route === 'courses') renderCourses();
-  if (route === 'home') renderHome();
-  if (route === 'dashboard') renderDashboard();
-  if (route === 'certs') renderCertificates();
-}
-function goBackSafe(){ HISTORY.pop(); const prev = HISTORY.pop()||'home'; navigate(prev); }
-
-/* =========================
-   Home: featured & categories
-========================= */
-function renderHome(){
-  COURSES = read(LS.COURSES, SAMPLE);
-  const featured = COURSES.slice(0,4);
-  $('#featuredGrid').innerHTML = featured.map(c=>`<div class="course-card md-card"><div style="display:flex;justify-content:space-between"><div><strong>${c.title}</strong><div class="muted">${c.category}</div></div><div class="badge">${c.rating}★</div></div><p class="muted">${c.description}</p><div style="margin-top:8px"><button class="btn primary" onclick="openCourse('${c.id}')">Start</button></div></div>`).join('');
-  const cats = Array.from(new Set(COURSES.map(c=>c.category)));
-  $('#categoryChips').innerHTML = cats.map(cat=>`<div class="chip" onclick="filterByCat('${cat}')">${cat}</div>`).join('');
-}
-
-/* =========================
-   Courses: grid, filter, sort
-========================= */
-function renderCourses(){
-  COURSES = read(LS.COURSES, SAMPLE);
-  const grid = $('#coursesGrid'); if(!grid) return;
-  const filterCat = $('#filterCategory'); const filterDiff = $('#filterDifficulty'); const sortBy = $('#sortBy');
-
-  // populate filters if empty
-  if (filterCat && filterCat.children.length === 1){
-    const cats = Array.from(new Set(COURSES.map(c=>c.category)));
-    filterCat.innerHTML = '<option value="">All categories</option>' + cats.map(x=>`<option value="${x}">${x}</option>`).join('');
-  }
-
-  let list = [...COURSES];
-  // apply filters
-  const cat = filterCat?.value || '';
-  const diff = filterDiff?.value || '';
-  if (cat) list = list.filter(c=>c.category===cat);
-  if (diff) list = list.filter(c=>c.difficulty===diff);
-
-  // sorting
-  const s = sortBy?.value || 'new';
-  if (s === 'rating') list.sort((a,b)=> (b.rating||0)-(a.rating||0));
-  if (s === 'progress' && CURRENT) list.sort((a,b)=> userCourseProgress(b.id)-userCourseProgress(a.id));
-
-  grid.innerHTML = list.map(c=> {
-    const prog = CURRENT? userCourseProgress(c.id):0;
-    return `<div class="course-card md-card">
-      <div style="display:flex;justify-content:space-between"><div><strong>${c.title}</strong><div class="muted">${c.category} • ${c.difficulty||''}</div></div><div style="text-align:right"><div class="muted">${prog}%</div><div class="muted">${c.rating}★</div></div></div>
-      <p class="muted">${c.description}</p>
-      <div style="margin-top:8px"><button class="btn ghost" onclick="openCourse('${c.id}')">Preview</button> <button class="btn primary" onclick="openCourse('${c.id}')">Continue Course</button></div>
-    </div>`;
-  }).join('');
+// Open course detail
+function openCourse(id){
+  const course = SAMPLE_COURSES.find(c=>c.id===id);
+  if(!course) return alert("Course not found");
+  const card = document.getElementById('course-detail-card');
+  card.innerHTML = `
+    <div class="row space-between">
+      <div>
+        <h2>${course.title}</h2>
+        <p class="muted">${course.category} • ${course.difficulty}</p>
+      </div>
+      <div class="muted">Lessons: ${course.lessons.length}</div>
+    </div>
+    <p>${course.lessons[0].content.substring(0,120)}...</p>
+    <h4>Lessons</h4>
+    <ul id="lesson-list" class="list"></ul>
+    <div class="row gap" style="margin-top:12px">
+      <button class="btn primary" onclick="startCourse('${course.id}')">Continue Course</button>
+      <button class="btn" onclick="openQuiz('${course.id}')">Take Quiz</button>
+    </div>
+  `;
+  const list = card.querySelector('#lesson-list');
+  getProgressForCurrentUser(); // ensure progress loaded
+  course.lessons.forEach(lesson=>{
+    const li = document.createElement('li');
+    const completed = userProgress?.[course.id]?.lessonsCompleted?.includes(lesson.id);
+    li.innerHTML = `<div class="row space-between"><div><strong>${lesson.title}</strong><div class="muted">${lesson.duration} mins</div></div><div><button class="btn tiny" onclick="openLesson('${course.id}','${lesson.id}')">${completed ? 'Continue' : 'Start'}</button></div></div>`;
+    list.appendChild(li);
+  });
+  // Remember last course id for navigation
+  lastCourseViewed = course.id;
+  showSection('course-detail');
 }
 
-$('#filterCategory')?.addEventListener('change', renderCourses);
-$('#filterDifficulty')?.addEventListener('change', renderCourses);
-$('#sortBy')?.addEventListener('change', renderCourses);
+let lastCourseViewed = null;
 
-/* handy category click */
-function filterByCat(cat){ $('#filterCategory').value = cat; renderCourses(); navigate('courses'); }
-
-/* =========================
-   Open course & lessons
-========================= */
-let ACTIVE = { course:null, lesson:null };
-function openCourse(courseId){
-  COURSES = read(LS.COURSES, SAMPLE);
-  const c = COURSES.find(x=>x.id===courseId);
-  if (!c) { toast('Course not found'); return; }
-  ACTIVE.course = c;
-  $('#courseHeader').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><h2>${c.title}</h2><div class="muted">${c.category} • ${c.difficulty||''}</div><p class="muted">${c.description}</p></div><div><div class="badge">${c.rating}★</div><div class="muted" style="margin-top:8px">Progress: ${CURRENT?userCourseProgress(c.id):0}%</div></div></div>`;
-  $('#lessonList').innerHTML = `<h3>Lessons</h3>` + c.lessons.map((l, idx)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);margin-top:8px"><div><strong>${l.title}</strong><div class="muted">${l.duration||''}</div></div><div><button class="btn ghost" onclick="openLesson('${c.id}','${l.id}')">Open</button></div></div>`).join('') + `<div style="margin-top:12px"><button class="btn primary" onclick="startCourse('${c.id}')">Start Course</button></div>`;
-  navigate('courseView');
+// Start / continue course
+function startCourse(id){
+  lastCourseViewed = id;
+  openCourse(id);
+  // open first incomplete lesson
+  const course = SAMPLE_COURSES.find(c=>c.id===id);
+  const progress = getProgressForCurrentUser();
+  let next = course.lessons.find(l => !(progress?.[id]?.lessonsCompleted || []).includes(l.id));
+  if(!next) next = course.lessons[0];
+  openLesson(id, next.id);
 }
-function startCourse(courseId){ const c = COURSES.find(x=>x.id===courseId); if (!c || !c.lessons) return; openLesson(courseId, c.lessons[0].id); }
 
+// Open lesson viewer
 function openLesson(courseId, lessonId){
-  COURSES = read(LS.COURSES, SAMPLE);
-  const course = COURSES.find(c=>c.id===courseId);
-  if (!course) { toast('Course not found'); return; }
+  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
   const lesson = course.lessons.find(l=>l.id===lessonId);
-  if (!lesson) { toast('Lesson not found'); return; }
-  ACTIVE.course = course; ACTIVE.lesson = lesson;
-
-  $('#lessonMeta').innerHTML = `<h2>${lesson.title}</h2><div class="muted">${course.title} • ${lesson.duration||''}</div>`;
-  $('#lessonBody').innerHTML = lesson.content;
-
-  // mark button wiring
-  $('#markCompleteBtn').onclick = ()=> {
-    if (!CURRENT) { toast('Login to save progress'); openAuth('login'); return; }
-    const done = toggleLessonComplete(course.id, lesson.id);
-    $('#markCompleteBtn').textContent = done ? 'Completed' : 'Mark Complete';
-    renderDashboard(); renderCourses(); renderProgress(); renderCertificates();
-  };
-
-  $('#prevLessonBtn').onclick = ()=> {
-    const idx = course.lessons.findIndex(x=>x.id===lesson.id);
-    if (idx > 0) openLesson(course.id, course.lessons[idx-1].id);
-    else toast('This is first lesson');
-  };
-  $('#nextLessonBtn').onclick = ()=> {
-    const idx = course.lessons.findIndex(x=>x.id===lesson.id);
-    if (idx < course.lessons.length - 1) openLesson(course.id, course.lessons[idx+1].id);
-    else toast('This is last lesson');
-  };
-
-  $('#lessonQuizBtn').onclick = ()=> {
-    if (!course.quiz || !course.quiz.questions) { toast('No quiz for this course'); return; }
-    renderQuiz(course.id);
-  };
-
-  // exercises wiring (data-exec / data-clear)
-  setTimeout(()=> {
-    $$('[data-exec]').forEach(btn => btn.onclick = handleExec);
-    $$('[data-clear]').forEach(btn => btn.onclick = handleClear);
-  }, 30);
-
-  // update completed label
-  if (CURRENT && isLessonCompleted(course.id, lesson.id)) $('#markCompleteBtn').textContent = 'Completed'; else $('#markCompleteBtn').textContent = 'Mark Complete';
-
-  navigate('lessonView');
+  const el = document.getElementById('lesson-card');
+  el.innerHTML = `
+    <h2>${lesson.title}</h2>
+    <div class="muted">Estimated: ${lesson.duration} mins • Course: ${course.title}</div>
+    <div style="margin-top:12px">${lesson.content}</div>
+    <div style="margin-top:12px" id="code-blocks"></div>
+    <div class="row gap" style="margin-top:12px">
+      <button class="btn primary" onclick="markCompleted('${courseId}','${lessonId}')">Mark Completed</button>
+      <button class="btn" onclick="openNextLesson('${courseId}','${lessonId}')">Next</button>
+    </div>
+  `;
+  const cb = el.querySelector('#code-blocks');
+  if(lesson.codeBlocks) lesson.codeBlocks.forEach(code=>{
+    const pre = document.createElement('pre');
+    pre.style.padding = "8px"; pre.style.borderRadius = "8px"; pre.style.background = "rgba(0,0,0,0.06)";
+    pre.innerHTML = `<code>${escapeHtml(code)}</code><div style="margin-top:6px"><button class="btn tiny" onclick="copyToClipboard(\`${escapeBackticks(code)}\`)">Copy</button></div>`;
+    cb.appendChild(pre);
+  });
+  showSection('lesson');
 }
 
-/* exec handlers */
-function handleExec(e){
-  const key = e.target.getAttribute('data-exec');
-  const ta = document.getElementById('exercise-'+key);
-  const out = document.getElementById('exercise-result-'+key);
-  if (!ta) { if (out) out.textContent='No input'; return; }
-  const txt = ta.value || '';
-  let ok=false, msg='';
-  if (key.includes('html')) { ok = /<header|<main|<footer/i.test(txt); msg = ok ? 'Looks good' : 'Try including header/main/footer'; }
-  else if (key.includes('js')) { ok = /function\s+\w+\(|return/.test(txt); msg = ok ? 'Function detected' : 'Try implementing function'; }
-  else ok = txt.length > 8;
-  if (out){ out.textContent = msg; out.style.color = ok? 'green' : ''; }
+function copyToClipboard(text){
+  navigator.clipboard?.writeText(text).then(()=> showToast("Copied to clipboard")).catch(()=>showToast("Copy failed"));
 }
-function handleClear(e){
-  const key = e.target.getAttribute('data-clear');
-  const ta = document.getElementById('exercise-'+key);
-  const out = document.getElementById('exercise-result-'+key);
-  if (ta) ta.value=''; if (out) out.textContent=''; out.style.color='';
-}
+function escapeHtml(s){ return s.replace(/</g,"&lt;").replace(/>/g,"&gt;") }
+function escapeBackticks(s){ return s.replace(/`/g,'\\`') }
 
-/* =========================
-   Quiz system
-========================= */
-let QUIZ_STATE = null;
-function renderQuiz(courseId){
-  const course = COURSES.find(c=>c.id===courseId);
-  if (!course || !course.quiz) { toast('Quiz not found'); return; }
-  const questions = course.quiz.questions;
-  QUIZ_STATE = { courseId, questions, answers: Array(questions.length).fill(null) };
-  const wrapper = $('#quizWrapper');
-  wrapper.innerHTML = `<h3>Quiz • ${course.title}</h3>` + questions.map((q,i)=>`<div class="md-card"><div><strong>Q${i+1}:</strong> ${q.q}</div><div style="margin-top:8px">${q.choices.map((c,oi)=>`<label style="display:block;margin-top:8px"><input type="radio" name="q${i}" value="${oi}"> ${c}</label>`).join('')}</div></div>`).join('') + `<div style="margin-top:12px"><button class="btn primary" id="submitQuiz">Submit</button><button class="btn ghost" id="resetQuiz">Reset</button></div>`;
-  $('#submitQuiz').onclick = submitQuiz;
-  $('#resetQuiz').onclick = ()=> renderQuiz(courseId);
-  navigate('quizView');
+// Progress & marking
+let sessionUser = read(STORAGE_KEYS.SESSION) || null;
+let userProgress = read(STORAGE_KEYS.PROGRESS) || {};
+function getProgressForCurrentUser(){
+  userProgress = read(STORAGE_KEYS.PROGRESS) || {};
+  if(!sessionUser) return userProgress;
+  if(!userProgress[sessionUser]) userProgress[sessionUser] = { lessonsCompleted: {}, quizScores: {}, xp: 0 };
+  return userProgress;
 }
-function submitQuiz(){
-  if (!QUIZ_STATE) return;
-  const q = QUIZ_STATE.questions;
-  let answers = [];
-  for (let i=0;i<q.length;i++){
-    const sel = document.querySelector(`input[name="q${i}"]:checked`);
-    answers.push(sel ? Number(sel.value) : null);
+function saveProgress(){
+  write(STORAGE_KEYS.PROGRESS, userProgress);
+  renderDashboard();
+}
+function markCompleted(courseId, lessonId){
+  const user = sessionUser || "guest";
+  if(!userProgress[user]) userProgress[user] = { lessonsCompleted:{}, quizScores:{}, xp:0 };
+  if(!userProgress[user].lessonsCompleted[courseId]) userProgress[user].lessonsCompleted[courseId] = [];
+  if(!userProgress[user].lessonsCompleted[courseId].includes(lessonId)){
+    userProgress[user].lessonsCompleted[courseId].push(lessonId);
+    // grant XP
+    userProgress[user].xp = (userProgress[user].xp || 0) + 10;
+    write(STORAGE_KEYS.PROGRESS, userProgress);
+    pushNotification(`Lesson completed: ${lessonId}`, 'lesson');
+    showToast("Marked completed! +10 XP");
+  } else {
+    showToast("Already completed");
   }
-  if (answers.some(a=>a===null)) { toast('Answer all questions'); return; }
-  let score = 0; q.forEach((qq,i)=> { if (answers[i] === qq.a) score++; });
-  const pct = Math.round((score / q.length)*100);
-  if (!CURRENT){ toast('Login to save result'); openAuth('login'); return; }
-  if (pct >= 60){ const cert = { id:'cert_'+Date.now(), userId:CURRENT.id, name:CURRENT.name, courseId:QUIZ_STATE.courseId, courseTitle:COURSES.find(c=>c.id===QUIZ_STATE.courseId).title, pct, date:new Date().toISOString().split('T')[0] }; CERTS.push(cert); save(LS.CERTS, CERTS); toast('Passed — certificate saved'); }
-  else toast('Did not pass — try again');
-
-  $('#quizWrapper').innerHTML = `<div class="md-card"><h3>Results</h3><p>Your score: <strong>${score}/${q.length}</strong> (${pct}%)</p><div style="margin-top:12px"><button class="btn primary" id="downloadCert">Download Certificate</button></div></div>`;
-  $('#downloadCert').onclick = ()=> {
-    const dataUrl = generateCertificateImage(CURRENT.name, COURSES.find(c=>c.id===QUIZ_STATE.courseId).title, pct);
-    const a = document.createElement('a'); a.href = dataUrl; a.download = `${COURSES.find(c=>c.id===QUIZ_STATE.courseId).title.replace(/\s+/g,'_')}_certificate.png`; a.click();
-  };
+  renderAchievements();
+  renderDashboard();
 }
 
-/* =========================
-   Progress tracking
-========================= */
-function toggleLessonComplete(courseId, lessonId){
-  if (!CURRENT){ toast('Login required'); openAuth('login'); return false; }
-  PROGRESS[CURRENT.id] = PROGRESS[CURRENT.id] || {};
-  PROGRESS[CURRENT.id][lessonId] = !PROGRESS[CURRENT.id][lessonId];
-  save(LS.PROGRESS, PROGRESS);
-  return PROGRESS[CURRENT.id][lessonId];
-}
-function isLessonCompleted(courseId, lessonId){
-  return !!(CURRENT && PROGRESS[CURRENT.id] && PROGRESS[CURRENT.id][lessonId]);
-}
-function userCourseProgress(courseId){
-  const course = COURSES.find(c=>c.id===courseId);
-  if (!course || !course.lessons) return 0;
-  if (!CURRENT) return 0;
-  const total = course.lessons.length;
-  const done = course.lessons.reduce((s,l)=> s + ((PROGRESS[CURRENT.id] && PROGRESS[CURRENT.id][l.id])?1:0), 0);
-  return Math.round((done/total)*100);
+// Open next lesson
+function openNextLesson(courseId, lessonId){
+  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
+  const idx = course.lessons.findIndex(l=>l.id===lessonId);
+  const next = course.lessons[idx+1];
+  if(next) openLesson(courseId,next.id);
+  else {
+    showToast("No more lessons — well done!"); 
+  }
 }
 
-/* =========================
-   Certificates
-========================= */
-function renderCertificates(){
-  const list = $('#certList'); list.innerHTML = '';
-  if (!CURRENT){ list.innerHTML = '<div>Please login to view certificates</div>'; return; }
-  const mine = CERTS.filter(c=>c.userId===CURRENT.id);
-  if (mine.length===0){ list.innerHTML = '<div>No certificates yet.</div>'; return; }
-  list.innerHTML = mine.map(c=>`<div class="course-card md-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${c.courseTitle}</strong><div class="muted">${c.date} • ${c.pct}%</div></div><div><button class="btn primary" onclick="downloadCert('${c.id}')">Download</button></div></div></div>`).join('');
+// ---------- Quiz ----------
+let currentQuiz = null;
+function openQuiz(courseId){
+  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
+  currentQuiz = { courseId, questions: shuffleArray(course.quiz).slice(0, Math.min(10, course.quiz.length)), index: 0, score: 0, answers: [] };
+  renderQuiz();
+  showSection('quiz');
 }
-function downloadCert(certId){
-  const c = CERTS.find(x=>x.id===certId);
-  if (!c) return toast('Certificate not found');
-  const dataUrl = generateCertificateImage(c.name, c.courseTitle, c.pct, c.date);
-  const a = document.createElement('a'); a.href = dataUrl; a.download = `${c.courseTitle.replace(/\s+/g,'_')}_certificate.png`; a.click();
+function renderQuiz(){
+  const root = document.getElementById('quiz-card');
+  if(!currentQuiz) { root.innerHTML = "<p>No quiz active</p>"; return; }
+  const q = currentQuiz.questions[currentQuiz.index];
+  root.innerHTML = `
+    <h3>Quiz • ${SAMPLE_COURSES.find(c=>c.id===currentQuiz.courseId).title}</h3>
+    <div class="card">
+      <p><strong>Q${currentQuiz.index+1}.</strong> ${q.question}</p>
+      <div id="choices"></div>
+      <div style="margin-top:12px" class="row gap">
+        <button class="btn" onclick="prevQuestion()">Previous</button>
+        <button class="btn primary" onclick="submitAnswer()">Submit</button>
+      </div>
+    </div>
+  `;
+  const choices = root.querySelector('#choices');
+  q.choices.forEach((c,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.display='block';
+    btn.style.marginTop='6px';
+    btn.innerText = c;
+    btn.onclick = ()=> {
+      currentQuiz.selected = i;
+      root.querySelectorAll('#choices .btn').forEach(b=>b.classList.remove('primary'));
+      btn.classList.add('primary');
+    };
+    choices.appendChild(btn);
+  });
 }
-function generateCertificateImage(name, courseTitle, pct, dateStr){
-  const date = dateStr || new Date().toISOString().split('T')[0];
-  const canvas = document.getElementById('certCanvas');
+function submitAnswer(){
+  const q = currentQuiz.questions[currentQuiz.index];
+  if(currentQuiz.selected === undefined) return showToast("Choose an answer");
+  const correct = currentQuiz.selected === q.correct;
+  if(correct) currentQuiz.score++;
+  currentQuiz.answers.push({ selected: currentQuiz.selected, correct: q.correct });
+  // explanation shown briefly
+  showToast(correct ? "Correct!" : "Incorrect");
+  currentQuiz.index++;
+  currentQuiz.selected = undefined;
+  if(currentQuiz.index >= currentQuiz.questions.length) finishQuiz();
+  else renderQuiz();
+}
+function prevQuestion(){ if(currentQuiz.index>0){ currentQuiz.index--; currentQuiz.answers.pop(); renderQuiz(); } }
+function finishQuiz(){
+  const total = currentQuiz.questions.length;
+  const score = currentQuiz.score;
+  // Save score
+  const user = sessionUser || "guest";
+  userProgress = read(STORAGE_KEYS.PROGRESS) || {};
+  if(!userProgress[user]) userProgress[user] = { lessonsCompleted: {}, quizScores:{}, xp:0 };
+  userProgress[user].quizScores[currentQuiz.courseId] = { score, total, date: new Date().toISOString() };
+  // give XP proportional
+  userProgress[user].xp = (userProgress[user].xp || 0) + Math.round((score/total)*50);
+  write(STORAGE_KEYS.PROGRESS, userProgress);
+  pushNotification(`Quiz completed: ${SAMPLE_COURSES.find(c=>c.id===currentQuiz.courseId).title} — ${score}/${total}`, 'quiz');
+  showSection('course-detail');
+  openCourse(currentQuiz.courseId);
+  showToast(`Quiz finished: ${score}/${total}`);
+  currentQuiz = null;
+  renderDashboard();
+}
+
+// ---------- Certificate generator ----------
+function generateCertificate(){
+  const name = document.getElementById('cert-name').value || (read(STORAGE_KEYS.PROFILE)?.name || "Student");
+  const canvas = document.getElementById('certificate-canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = 1200; canvas.height = 675;
-  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = '#eef6ff'; ctx.fillRect(60,60,canvas.width-120,120);
-  ctx.fillStyle = '#0f1724'; ctx.font = '48px Roboto'; ctx.fillText('Certificate of Completion', 100, 150);
-  ctx.font = '28px Roboto'; ctx.fillText(courseTitle, 100, 240);
-  ctx.font = '36px Roboto'; ctx.fillText(`Awarded to: ${name}`, 100, 320);
-  ctx.font = '20px Roboto'; ctx.fillStyle = '#374151'; ctx.fillText(`Score: ${pct}% • Date: ${date}`, 100, 380);
-  ctx.beginPath(); ctx.arc(canvas.width - 180, 180, 80, 0, Math.PI*2); ctx.fillStyle = '#7c4dff'; ctx.fill();
-  ctx.fillStyle = '#fff'; ctx.font='28px Roboto'; ctx.fillText('PASS', canvas.width - 220, 195);
-  return canvas.toDataURL('image/png');
+  // Background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Border
+  ctx.strokeStyle = '#1e3a8a';
+  ctx.lineWidth = 24;
+  ctx.strokeRect(24,24,canvas.width-48,canvas.height-48);
+  // Title
+  ctx.fillStyle = '#0f1724';
+  ctx.font = '48px Inter';
+  ctx.fillText('Certificate of Completion', 80, 160);
+  // Name
+  ctx.font = '40px Inter';
+  ctx.fillText(name, 80, 260);
+  // Course placeholder
+  ctx.font = '28px Inter';
+  ctx.fillStyle = '#333';
+  ctx.fillText('For successfully completing Learnify course', 80, 320);
+  // Date
+  ctx.font = '20px Inter';
+  ctx.fillStyle = '#666';
+  ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, 80, 360);
+  // Small QR mock (just a square)
+  ctx.fillStyle = '#000';
+  ctx.fillRect(canvas.width-200, canvas.height-200, 160, 160);
+
+  // Download
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `learnify-certificate-${name.replace(/\s+/g,'-')}.png`;
+  a.click();
 }
 
-/* =========================
-   Dashboard (Chart.js)
-========================= */
+// ---------- Dashboard & Chart ----------
+let chartInstance = null;
 function renderDashboard(){
-  const el = $('#dashProgress'); if (!el) return;
-  if (!CURRENT){ el.innerHTML = '<div>Please login to see dashboard</div>'; return; }
-  // simple stats
-  const completed = CERTS.filter(c=>c.userId===CURRENT.id).length;
-  const inProgress = COURSES.filter(c=> userCourseProgress(c.id) > 0 && userCourseProgress(c.id) < 100).length;
-  const streak = Math.floor(Math.random()*7)+1; // demo
-  const xp = completed*120 + inProgress*30;
-  el.innerHTML = `<div><strong>Completed:</strong> ${completed}</div><div><strong>In progress:</strong> ${inProgress}</div><div><strong>XP:</strong> ${xp}</div>`;
-  $('#dashStats').innerHTML = `<div>Streak: <strong>${streak} day(s)</strong></div><div>Badges: <strong>${completed>0? 'Course Master':''}</strong></div>`;
+  const profile = read(STORAGE_KEYS.PROFILE) || {};
+  document.getElementById('xp-count').innerText = `XP: ${getUserXP()}`;
+  const inProgress = countInProgress();
+  document.getElementById('courses-inprogress').innerText = `In Progress: ${inProgress}`;
+  document.getElementById('courses-completed').innerText = `Completed: ${countCompleted()}`;
 
-  // chart
-  const labels = COURSES.map(c=>c.title);
-  const data = COURSES.map(c=> userCourseProgress(c.id));
-  const ctx = document.getElementById('progressChart').getContext('2d');
-  try{
-    window.progressChart && window.progressChart.destroy();
-  }catch(e){}
-  window.progressChart = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{ label:'Progress %', data, backgroundColor:labels.map(()=> 'rgba(79,70,229,0.8)') }] },
-    options:{ responsive:true, scales:{ y:{ beginAtZero:true, max:100 } } }
+  // Build simple chart: completed vs inprogress
+  const ctx = document.getElementById('progress-chart');
+  if(!ctx) return;
+  const labels = SAMPLE_COURSES.map(c=>c.title);
+  const data = SAMPLE_COURSES.map(c=>{
+    const p = read(STORAGE_KEYS.PROGRESS) || {};
+    const user = sessionUser || "guest";
+    const completed = p[user]?.lessonsCompleted?.[c.id]?.length || 0;
+    return Math.round((completed / c.lessons.length) * 100);
+  });
+  if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Completion %', data }] },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true, max:100} } }
   });
 }
 
-/* =========================
-   Auth (mock)
-========================= */
-function openAuth(mode){
-  const modal = $('#authModal'); modal.classList.remove('hidden');
-  $('#authMsg').textContent = '';
-  if (mode === 'signup'){ $('#authTitle').textContent='Sign up'; $('#authName').classList.remove('hidden'); $('#authSubmit').onclick = doSignup; }
-  else { $('#authTitle').textContent='Login'; $('#authName').classList.add('hidden'); $('#authSubmit').onclick = doLogin; }
+function getUserXP(){
+  const user = sessionUser || "guest";
+  const p = read(STORAGE_KEYS.PROGRESS) || {};
+  return p[user]?.xp || 0;
 }
-$('#authCancel').onclick = ()=> $('#authModal').classList.add('hidden');
-
-function doSignup(){
-  const name = $('#authName').value.trim(); const email = $('#authEmail').value.trim().toLowerCase(); const pass = $('#authPassword').value;
-  if (!name||!email||!pass){ $('#authMsg').textContent='Fill all fields'; return; }
-  USERS = read(LS.USERS, []);
-  if (USERS.find(u=>u.email===email)){ $('#authMsg').textContent='Email exists'; return; }
-  const user = { id:'u_'+Date.now(), name, email, pass };
-  USERS.push(user); save(LS.USERS, USERS);
-  CURRENT = { id:user.id, name:user.name, email:user.email }; save(LS.CURRENT, CURRENT);
-  $('#authModal').classList.add('hidden'); renderNavUserArea(); toast('Signed up'); renderDashboard(); renderCertificates();
+function countInProgress(){
+  const p = read(STORAGE_KEYS.PROGRESS) || {};
+  const user = sessionUser || "guest";
+  const lessons = p[user]?.lessonsCompleted || {};
+  let count = 0;
+  SAMPLE_COURSES.forEach(c=>{
+    const completed = (lessons[c.id] || []).length;
+    if(completed > 0 && completed < c.lessons.length) count++;
+  });
+  return count;
 }
-
-function doLogin(){
-  const email = $('#authEmail').value.trim().toLowerCase(); const pass = $('#authPassword').value;
-  USERS = read(LS.USERS, []);
-  const u = USERS.find(x=>x.email===email && x.pass===pass);
-  if (!u){ $('#authMsg').textContent='Invalid credentials'; return; }
-  CURRENT = { id:u.id, name:u.name, email:u.email }; save(LS.CURRENT, CURRENT);
-  $('#authModal').classList.add('hidden'); renderNavUserArea(); toast('Logged in'); renderDashboard(); renderCertificates();
+function countCompleted(){ 
+  const p = read(STORAGE_KEYS.PROGRESS) || {};
+  const user = sessionUser || "guest";
+  const lessons = p[user]?.lessonsCompleted || {};
+  let count = 0;
+  SAMPLE_COURSES.forEach(c=>{
+    const completed = (lessons[c.id] || []).length;
+    if(completed >= c.lessons.length) count++;
+  });
+  return count;
 }
 
-/* =========================
-   Search system
-========================= */
-$('#globalSearch')?.addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) { renderCourses(); return; }
-  const results = COURSES.filter(c=> (c.title + c.description + c.category + (c.lessons||[]).map(l=>l.title).join(' ')).toLowerCase().includes(q));
-  $('#coursesGrid').innerHTML = results.map(c=>`<div class="course-card md-card"><div style="display:flex;justify-content:space-between"><div><strong>${c.title}</strong><div class="muted">${c.category}</div></div><div class="badge">${c.rating}★</div></div><p class="muted">${c.description}</p><div style="margin-top:8px"><button class="btn primary" onclick="openCourse('${c.id}')">Open</button></div></div>`).join('');
+// ---------- Achievements & Notifications ----------
+function renderAchievements(){
+  const root = document.getElementById('badges');
+  root.innerHTML = "";
+  const user = sessionUser || "guest";
+  const p = read(STORAGE_KEYS.PROGRESS) || {};
+  const xp = p[user]?.xp || 0;
+  const completed = countCompleted();
+  function badge(title,desc){
+    const div = document.createElement('div'); div.className='card small';
+    div.innerHTML = `<h4>${title}</h4><div class="muted">${desc}</div>`;
+    root.appendChild(div);
+  }
+  if(completed>0) badge("Course Finisher", `${completed} course(s) completed`);
+  if(xp>=50) badge("Learner • 50 XP", "Consistent learning");
+  if(xp>=200) badge("Power Learner • 200 XP", "Excellent progress");
+}
+
+function pushNotification(text, type='info'){
+  const notifs = read(STORAGE_KEYS.NOTIFS) || [];
+  notifs.unshift({ text, type, date: new Date().toISOString() });
+  write(STORAGE_KEYS.NOTIFS, notifs.slice(0,50));
+  renderNotifications();
+}
+function renderNotifications(){
+  const list = document.getElementById('notifications-list');
+  const notifs = read(STORAGE_KEYS.NOTIFS) || [];
+  list.innerHTML = notifs.map(n=>`<li class="card"><div class="row space-between"><div>${n.text}<div class="muted" style="font-size:12px">${new Date(n.date).toLocaleString()}</div></div></div></li>`).join('');
+}
+
+// ---------- Profile & auth (mock) ----------
+function loadProfile(){
+  const p = read(STORAGE_KEYS.PROFILE) || {};
+  document.getElementById('profile-name').value = p.name || "";
+  document.getElementById('profile-avatar').value = p.avatar || "";
+}
+document.getElementById('save-profile')?.addEventListener('click', ()=>{
+  const name = document.getElementById('profile-name').value || "Guest";
+  const avatar = document.getElementById('profile-avatar').value || "";
+  write(STORAGE_KEYS.PROFILE, { name, avatar });
+  showToast("Profile saved");
 });
 
-/* =========================
-   Init
-========================= */
-document.addEventListener('DOMContentLoaded', ()=>{
-  COURSES = read(LS.COURSES, SAMPLE);
-  USERS = read(LS.USERS, []);
-  CURRENT = read(LS.CURRENT, null);
-  PROGRESS = read(LS.PROGRESS, {});
-  CERTS = read(LS.CERTS, []);
-  renderNavUserArea();
-  renderHome();
-  renderCourses();
+// Mock login flow
+document.getElementById('login-btn').addEventListener('click', ()=>{
+  const username = prompt("Sign in (enter a username) — this is a mock session");
+  if(!username) return;
+  sessionUser = username.trim();
+  write(STORAGE_KEYS.SESSION, sessionUser);
+  showToast(`Signed in as ${sessionUser}`);
+  // ensure progress data for user
+  const p = read(STORAGE_KEYS.PROGRESS) || {};
+  if(!p[sessionUser]) p[sessionUser] = { lessonsCompleted:{}, quizScores:{}, xp:0 };
+  write(STORAGE_KEYS.PROGRESS, p);
   renderDashboard();
-  renderCertificates();
-  try{ hljs.highlightAll(); }catch(e){}
 });
+
+// Logout
+function logout(){
+  sessionUser = null;
+  localStorage.removeItem(STORAGE_KEYS.SESSION);
+  showToast("Logged out");
+}
+
+// ---------- Theme toggle ----------
+function applyTheme(t){
+  const root = document.getElementById('app');
+  if(t === 'light') root.classList.add('theme-light'); else root.classList.remove('theme-light');
+  write(STORAGE_KEYS.THEME, t);
+}
+const savedTheme = read(STORAGE_KEYS.THEME) || 'light';
+applyTheme(savedTheme);
+document.getElementById('toggle-theme').addEventListener('click', ()=>{
+  const newTheme = (read(STORAGE_KEYS.THEME) === 'light') ? 'dark' : 'light';
+  applyTheme(newTheme);
+});
+
+// ---------- Toasts ----------
+let toastTimer = null;
+function showToast(msg, ms=2200){
+  clearTimeout(toastTimer);
+  let t = document.getElementById('learnify-toast');
+  if(!t){
+    t = document.createElement('div'); t.id='learnify-toast'; t.style.position='fixed'; t.style.right='20px'; t.style.bottom='20px'; t.style.padding='12px 16px'; t.style.borderRadius='10px'; t.style.background='rgba(0,0,0,0.6)'; t.style.color='#fff'; document.body.appendChild(t);
+  }
+  t.innerText = msg;
+  t.style.opacity = '1';
+  toastTimer = setTimeout(()=>t.style.opacity='0', ms);
+}
+
+// ---------- Utility helpers ----------
+function shuffleArray(a){ return a.slice().sort(()=>Math.random() - 0.5) }
+
+// Simple README download helper
+function downloadReadme(){
+  const content = `# Learnify\n\nThis is a portfolio-ready front-end learning platform built for GitHub Pages. Files: index.html, style.css, script.js\n\nDeploy: push to repo and enable GitHub Pages.`;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+  a.download = 'README.txt';
+  a.click();
+}
+
+// Init render
+renderCourses();
+renderDashboard();
+renderAchievements();
+renderNotifications();
+
+// Small helper to open a course by id globally (used by hero button)
+document.getElementById('featured-title').innerText = SAMPLE_COURSES[0].title;
+function openCourseById(id){ openCourse(id) }
+window.openCourse = openCourse;
+window.openLesson = openLesson;
+window.openQuiz = openQuiz;
+window.startCourse = startCourse;
+window.navigate = navigate;
+window.generateCertificate = generateCertificate;
+window.downloadReadme = downloadReadme;
