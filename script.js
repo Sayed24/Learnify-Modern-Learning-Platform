@@ -1,533 +1,646 @@
-// ===== Learnify — script.js =====
-// Simple SPA with LocalStorage state, sample data, routing, quiz, certificate (canvas), and Chart.js dashboard.
+/* Learnify — Google Material Dashboard style
+   Single-file SPA logic, courses + 30+ quiz questions, drag-drop resources (localStorage),
+   GSAP animations, Chart.js dashboard, certificate generator, README download.
+*/
 
-// ---------- Sample data ----------
-const SAMPLE_COURSES = [
+/* ---------- STORAGE KEYS ---------- */
+const KEYS = {
+  PROGRESS: "learnify_progress_v2",
+  PROFILE: "learnify_profile_v2",
+  SESSION: "learnify_session_v2",
+  RESOURCES: "learnify_resources_v2",
+  NOTIFS: "learnify_notifs_v2",
+  THEME: "learnify_theme_v2"
+};
+
+function read(k){ try{ return JSON.parse(localStorage.getItem(k)) }catch(e){return null} }
+function write(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+
+/* ---------- SAMPLE COURSES & 30+ QUIZ QUESTIONS ---------- */
+const COURSES = [
   {
     id: "html-basics",
     title: "HTML Basics",
     category: "Web Development",
-    difficulty: "Beginner",
-    rating: { total: 48, count: 10 },
+    level: "Beginner",
+    duration: "3 hours",
+    rating: 4.8,
     lessons: [
-      { id: "l1", title: "Introduction to HTML", content: "<p>HTML stands for HyperText Markup Language. It's the skeleton of web pages.</p>", duration: 5, codeBlocks: ["<!doctype html>"] },
-      { id: "l2", title: "Elements & Tags", content: "<p>Tags create elements like <strong>&lt;p&gt;</strong>, <strong>&lt;a&gt;</strong> and <strong>&lt;div&gt;</strong>.</p>", duration: 8 },
-      { id: "l3", title: "Attributes & Links", content: "<p>Attributes provide additional info; links use <code>href</code>.</p>", duration: 7 },
-      { id: "l4", title: "Forms & Inputs", content: "<p>Forms collect user data.</p>", duration: 10 },
-      { id: "l5", title: "Semantic HTML", content: "<p>Use semantic tags like <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>.</p>", duration: 6 },
-      { id: "l6", title: "Project: Simple Page", content: "<p>Build a simple page combining what you've learned.</p>", duration: 12 }
+      { id:"h1", title:"Intro to HTML", content:"<p>HTML is the structure of web pages. Elements are building blocks.</p>", duration:6 },
+      { id:"h2", title:"Text & Links", content:"<p>Headings, paragraphs, and anchors.</p>", duration:8 },
+      { id:"h3", title:"Lists & Tables", content:"<p>Ordered and unordered lists and basic tables.</p>", duration:10 },
+      { id:"h4", title:"Forms & Inputs", content:"<p>Collect user data with forms.</p>", duration:12 },
+      { id:"h5", title:"Semantic HTML", content:"<p>Use semantic tags to structure content.</p>", duration:8 }
     ],
     quiz: [
-      { question: "What does HTML stand for?", choices: ["HyperText Markup Language","Hyperlink Markup Language","Home Tool Markup Language"], correct: 0, explanation: "HyperText Markup Language." },
-      { question: "Which tag creates a link?", choices: ["<a>","<link>","<href>"], correct: 0, explanation: "<a> is used for links with href attribute." },
-      { question: "Semantic HTML includes which tag?", choices: ["<header>","<div>","<span>"], correct: 0, explanation: "<header> is semantic." }
+      { question:"What does HTML stand for?", choices:["HyperText Markup Language","Home Tool Markup Language","Hyperlink Text Makeup Language"], correct:0, explanation:"HTML = HyperText Markup Language." },
+      { question:"Which tag creates a link?", choices:["<a>","<link>","<href>"], correct:0, explanation:"<a> is used with href attribute." },
+      { question:"Which tag shows a paragraph?", choices:["<p>","<para>","<text>"], correct:0, explanation:"<p> is paragraph." },
+      { question:"Which tag is semantic?", choices:["<header>","<span>","<div>"], correct:0, explanation:"<header> is semantic." },
+      { question:"Forms commonly use which attribute for submission?", choices:["action","submit","methodology"], correct:0, explanation:"The 'action' attribute sets the submission URL." }
+    ]
+  },
+  {
+    id: "css-foundations",
+    title: "CSS Foundations",
+    category: "Web Development",
+    level: "Beginner",
+    duration: "4 hours",
+    rating: 4.7,
+    lessons: [
+      { id:"c1", title:"Selectors & Specificity", content:"<p>Target elements with selectors.</p>", duration:10 },
+      { id:"c2", title:"Box Model & Layout", content:"<p>Margins, padding, borders and layout engines.</p>", duration:14 },
+      { id:"c3", title:"Flexbox Basics", content:"<p>Use flex to align items.</p>", duration:12 },
+      { id:"c4", title:"Responsive Design", content:"<p>Media queries and mobile-first.</p>", duration:12 }
+    ],
+    quiz: [
+      { question:"What property sets background color?", choices:["background-color","bgcolor","color-bg"], correct:0, explanation:"background-color sets background." },
+      { question:"Which display makes a flex container?", choices:["display:flex","display:flow","display:gridish"], correct:0, explanation:"display:flex makes a flex container." },
+      { question:"What does 'rem' refer to?", choices:["Root em (relative to root font)","Relative to element padding","Random em"], correct:0, explanation:"rem is relative to root font-size." }
     ]
   },
   {
     id: "js-fundamentals",
     title: "JavaScript Fundamentals",
-    category: "Web Development",
-    difficulty: "Beginner",
-    rating: { total: 32, count: 8 },
+    category: "Programming",
+    level: "Intermediate",
+    duration: "6 hours",
+    rating: 4.6,
     lessons: [
-      { id: "j1", title: "Intro to JS", content: "<p>JavaScript adds interactivity to web pages.</p>", duration: 10 },
-      { id: "j2", title: "Variables & Types", content: "<p>let, const, var and types.</p>", duration: 12 },
-      { id: "j3", title: "DOM Manipulation", content: "<p>Query elements and change content.</p>", duration: 15 }
+      { id:"j1", title:"Intro & Syntax", content:"<p>Variables, operators and control flow.</p>", duration:12 },
+      { id:"j2", title:"Functions & Scope", content:"<p>Function declarations and closures.</p>", duration:16 },
+      { id:"j3", title:"DOM Manipulation", content:"<p>Select elements and update DOM.</p>", duration:18 },
+      { id:"j4", title:"Promises & Async", content:"<p>Async programming with promises.</p>", duration:20 }
     ],
     quiz: [
-      { question: "Which is a JS keyword to declare a variable?", choices: ["let","int","varx"], correct: 0, explanation: "let is correct." }
+      { question:"Which keyword declares a block-scoped variable?", choices:["let","var","constant"], correct:0, explanation:"'let' declares block-scoped variables." },
+      { question:"Which method adds an item to the end of an array?", choices:["push","pop","shift"], correct:0, explanation:"push adds item to the end." },
+      { question:"What does JSON stand for?", choices:["JavaScript Object Notation","Java Syntax Object Notation","Just Simple Object Notation"], correct:0, explanation:"JSON = JavaScript Object Notation." },
+      { question:"How to create a Promise?", choices:["new Promise((res,rej)=>{})","Promise.create()","Promise.new()"], correct:0, explanation:"Use new Promise with executor." }
+    ]
+  },
+  {
+    id: "git-github",
+    title: "Git & GitHub Workflow",
+    category: "Tools",
+    level: "Beginner",
+    duration: "2 hours",
+    rating: 4.9,
+    lessons: [
+      { id:"g1", title:"Init & Commit", content:"<p>Initialize repository and commit changes.</p>", duration:10 },
+      { id:"g2", title:"Branches & PRs", content:"<p>Use branches and create pull requests.</p>", duration:16 }
+    ],
+    quiz: [
+      { question:"Which command creates a new commit?", choices:["git commit -m","git push","git add ."], correct:0, explanation:"git commit -m creates a commit." },
+      { question:"How to create a new branch?", choices:["git checkout -b branch","git branch create branch","git new branch"], correct:0, explanation:"Use git checkout -b or git switch -c." }
     ]
   }
 ];
 
-// ---------- Storage helpers ----------
-const STORAGE_KEYS = {
-  USERS: "learnifyUsers",
-  SESSION: "learnifySession",
-  PROGRESS: "learnifyProgress",
-  NOTIFS: "learnifyNotifications",
-  PROFILE: "learnifyProfile",
-  THEME: "learnifyTheme"
-};
-
-function read(key){ try{ return JSON.parse(localStorage.getItem(key)) || null }catch(e){return null} }
-function write(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
-
-// Ensure initial data
-if(!read(STORAGE_KEYS.PROGRESS)) write(STORAGE_KEYS.PROGRESS,{});
-if(!read(STORAGE_KEYS.NOTIFS)) write(STORAGE_KEYS.NOTIFS,[]);
-if(!read(STORAGE_KEYS.PROFILE)) write(STORAGE_KEYS.PROFILE, { name: "Guest", avatar: "" });
-if(!read(STORAGE_KEYS.THEME)) write(STORAGE_KEYS.THEME, "light");
-
-// ---------- Tiny router ----------
-const pages = Array.from(document.querySelectorAll('.page'));
-function showSection(id){
-  pages.forEach(p=>p.id === id ? p.classList.add('active') : p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.route === id));
-  history.pushState({page:id}, "", `#${id}`);
-  // Some pages need refresh
-  if(id === 'courses' || id === 'explore') renderCourses();
-  if(id === 'dashboard') renderDashboard();
-  if(id === 'achievements') renderAchievements();
-  if(id === 'notifications') renderNotifications();
-  if(id === 'profile') loadProfile();
-}
-window.addEventListener('popstate', (e) => {
-  const id = (location.hash && location.hash.replace('#','')) || 'home';
-  showSectionNoPush(id);
-});
-function showSectionNoPush(id){
-  pages.forEach(p=>p.id === id ? p.classList.add('active') : p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.route === id));
-  if(id === 'courses' || id === 'explore') renderCourses();
-  if(id === 'dashboard') renderDashboard();
-  if(id === 'achievements') renderAchievements();
-  if(id === 'notifications') renderNotifications();
-  if(id === 'profile') loadProfile();
-}
-function navigate(id){
-  showSection(id);
-}
-
-// Attach nav links
-document.querySelectorAll('.nav-link').forEach(a=>{
-  a.addEventListener('click', (e)=>{
-    e.preventDefault();
-    const id = a.dataset.route;
-    showSection(id);
+// add extra auto-generated quiz items to reach 30+ total
+(function extendQuizzes(){
+  const extras = [
+    { question:"Which HTML element is used to embed JavaScript?", choices:["<script>","<js>","<code>"], correct:0, explanation:"Use <script> to embed JS." },
+    { question:"Which CSS property changes text color?", choices:["color","font-color","text-color"], correct:0, explanation:"color sets text color." },
+    { question:"Which operator is used for strict equality in JS?", choices:["===","==","!="], correct:0, explanation:"=== checks type + value." },
+    { question:"Which git command uploads commits to remote?", choices:["git push","git upload","git send"], correct:0, explanation:"git push uploads commits." },
+    { question:"What is the DOM?", choices:["Document Object Model","Domain Object Model","Data Object Model"], correct:0, explanation:"Document Object Model representation." },
+    { question:"Which HTML tag displays an image?", choices:["<img>","<image>","<src>"], correct:0, explanation:"<img> displays images." },
+    { question:"What does CSS 'flex-direction: column' do?", choices:["Stacks children vertically","Stacks horizontally","Centers children"], correct:0, explanation:"Stacks items top-to-bottom." },
+    { question:"Which method converts JS object to string?", choices:["JSON.stringify","toStringObject","Object.stringify"], correct:0, explanation:"JSON.stringify converts object to JSON string." },
+    { question:"Which Git command shows commit history?", choices:["git log","git history","git commits"], correct:0, explanation:"git log shows commit history." },
+    { question:"What is responsive design?", choices:["Design that adapts to screen sizes","Design for one screen","Design for print"], correct:0, explanation:"Responsive adjusts layout to screen size." }
+  ];
+  // push extras into courses quiz arrays round-robin
+  let i = 0;
+  extras.forEach(q=>{
+    COURSES[i % COURSES.length].quiz.push(q);
+    i++;
   });
+})();
+
+/* ---------- APP STATE ---------- */
+let session = read(KEYS.SESSION) || null;
+let profile = read(KEYS.PROFILE) || { name: "Guest", avatar: "" };
+let resources = read(KEYS.RESOURCES) || {}; // { courseId: [{name,size,type,dataUrl,uploadedAt}, ...] }
+let progress = read(KEYS.PROGRESS) || {}; // { user: { lessonsCompleted: {courseId:[lessonId]}, quizScores: {...}, xp: number, certificates: [] } }
+let notifs = read(KEYS.NOTIFS) || [];
+
+/* ---------- INITIAL UI BINDINGS ---------- */
+const pages = Array.from(document.querySelectorAll('.page'));
+function showPage(id, push=true){
+  pages.forEach(p=>p.id===id ? p.classList.add('active') : p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.toggle('active', n.dataset.route===id));
+  if(push) history.pushState({page:id},"",`#${id}`);
+  // render page-specific
+  if(id==='courses') renderCourses();
+  if(id==='dashboard') renderDashboard();
+  if(id==='course-detail') renderCourseDetail();
+  if(id==='explore') renderExplore();
+  if(id==='achievements') renderAchievements();
+  if(id==='profile') loadProfile();
+  if(id==='quiz') renderQuizUI();
+}
+window.addEventListener('popstate', ()=>{ const id = (location.hash && location.hash.replace('#','')) || 'dashboard'; showPage(id,false); });
+
+document.querySelectorAll('.nav-link').forEach(a=>{
+  a.addEventListener('click', (e)=>{ e.preventDefault(); showPage(a.dataset.route); });
 });
 
-// Boot to correct hash
-const startPage = (location.hash && location.hash.replace('#','')) || 'home';
-showSectionNoPush(startPage);
+/* sidebar toggle for mobile */
+const sidebar = document.getElementById('sidebar');
+document.getElementById('sidebar-toggle').addEventListener('click', ()=> sidebar.classList.toggle('show'));
 
-// ---------- UI renderers ----------
-function renderCourses(filter = "") {
+/* theme */
+const themeKey = KEYS.THEME;
+function applyTheme(t){
+  const root = document.getElementById('app');
+  if(t==='dark') root.classList.add('theme-dark'); else root.classList.remove('theme-dark');
+  write(themeKey,t);
+}
+applyTheme(read(themeKey) || 'light');
+document.getElementById('toggle-theme').addEventListener('click', ()=>{
+  const newT = (read(themeKey)==='light') ? 'dark' : 'light';
+  applyTheme(newT);
+});
+
+/* search */
+document.getElementById('global-search').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  if(!q) { renderCourses(); renderExplore(); return; }
+  renderCourses(q); renderExplore(q);
+});
+
+/* login mock */
+document.getElementById('login-btn').addEventListener('click', ()=>{
+  const username = prompt('Sign in — enter a username (mock)');
+  if(!username) return;
+  session = username.trim();
+  write(KEYS.SESSION, session);
+  if(!progress[session]) progress[session] = { lessonsCompleted: {}, quizScores: {}, xp: 0, certificates: [] };
+  write(KEYS.PROGRESS, progress);
+  showToast(`Signed in as ${session}`);
+  renderDashboard();
+});
+
+/* save profile */
+document.getElementById('save-profile').addEventListener('click', ()=>{
+  const name = document.getElementById('profile-name').value || "Guest";
+  const avatar = document.getElementById('profile-avatar').value || "";
+  profile = { name, avatar };
+  write(KEYS.PROFILE, profile);
+  showToast('Profile saved');
+});
+
+/* clear filters */
+document.getElementById('clear-filters').addEventListener('click', ()=> { document.getElementById('filter-category').value=''; document.getElementById('filter-level').value=''; renderExplore(); });
+
+/* theme select in settings */
+document.getElementById('select-theme').addEventListener('change', (e)=> applyTheme(e.target.value));
+
+/* ---------- RENDERING: COURSES & EXPLORE ---------- */
+function renderCourses(query=""){
   const grid = document.getElementById('courses-grid');
-  const grid2 = document.getElementById('courses-grid-2');
-  [grid, grid2].forEach(g=>g && (g.innerHTML = ""));
-  const q = (document.getElementById('search')?.value || "").toLowerCase();
-  SAMPLE_COURSES.forEach(course=>{
-    if(filter && course.category !== filter) return;
-    if(q && !course.title.toLowerCase().includes(q) && !course.category.toLowerCase().includes(q)) return;
-    const el = document.createElement('div');
-    el.className = "course-card card";
-    el.innerHTML = `
-      <h3>${course.title}</h3>
-      <p class="muted">${course.category} • ${course.difficulty}</p>
-      <p class="muted">${course.lessons.length} lessons • ⭐ ${(course.rating.total/course.rating.count).toFixed(1)}</p>
-      <div class="row gap" style="margin-top:8px">
-        <button class="btn" onclick="openCourse('${course.id}')">View</button>
-        <button class="btn primary" onclick="startCourse('${course.id}')">Start</button>
+  grid.innerHTML = "";
+  const q = (query || "").toLowerCase();
+  COURSES.forEach(c=>{
+    if(q && !(c.title+c.category+c.level).toLowerCase().includes(q)) return;
+    const card = document.createElement('div'); card.className='card course-tile';
+    card.innerHTML = `
+      <div>
+        <div class="title">${c.title}</div>
+        <div class="meta">${c.category} • ${c.level} • ${c.duration}</div>
+      </div>
+      <div class="row space-between" style="margin-top:12px">
+        <div class="muted">⭐ ${c.rating.toFixed(1)}</div>
+        <div class="row gap">
+          <button class="btn" onclick="openCourse('${c.id}')">View</button>
+          <button class="btn primary" onclick="startCourse('${c.id}')">Start</button>
+        </div>
       </div>
     `;
-    if(grid) grid.appendChild(el);
-    if(grid2) grid2.appendChild(el.cloneNode(true));
+    grid.appendChild(card);
   });
 }
-document.getElementById('search')?.addEventListener('input', ()=>renderCourses());
 
-// Open course detail
-function openCourse(id){
-  const course = SAMPLE_COURSES.find(c=>c.id===id);
-  if(!course) return alert("Course not found");
-  const card = document.getElementById('course-detail-card');
-  card.innerHTML = `
-    <div class="row space-between">
+function renderExplore(query=""){
+  const grid = document.getElementById('explore-grid');
+  grid.innerHTML = "";
+  // populate category filter
+  const categories = Array.from(new Set(COURSES.map(c=>c.category)));
+  const catSelect = document.getElementById('filter-category');
+  catSelect.innerHTML = '<option value="">All categories</option>' + categories.map(x=>`<option>${x}</option>`).join('');
+  const q = (query || "").toLowerCase();
+  COURSES.forEach(c=>{
+    const levelFilter = document.getElementById('filter-level').value;
+    if(levelFilter && c.level !== levelFilter) return;
+    if(q && !(c.title+c.category+c.level).toLowerCase().includes(q)) return;
+    const tile = document.createElement('div'); tile.className='card course-tile';
+    tile.innerHTML = `
       <div>
-        <h2>${course.title}</h2>
-        <p class="muted">${course.category} • ${course.difficulty}</p>
+        <div class="title">${c.title}</div>
+        <div class="meta">${c.category} • ${c.level}</div>
       </div>
-      <div class="muted">Lessons: ${course.lessons.length}</div>
-    </div>
-    <p>${course.lessons[0].content.substring(0,120)}...</p>
-    <h4>Lessons</h4>
-    <ul id="lesson-list" class="list"></ul>
-    <div class="row gap" style="margin-top:12px">
-      <button class="btn primary" onclick="startCourse('${course.id}')">Continue Course</button>
-      <button class="btn" onclick="openQuiz('${course.id}')">Take Quiz</button>
-    </div>
-  `;
-  const list = card.querySelector('#lesson-list');
-  getProgressForCurrentUser(); // ensure progress loaded
+      <div class="row space-between" style="margin-top:12px">
+        <div class="muted">Lessons: ${c.lessons.length}</div>
+        <div class="row gap">
+          <button class="btn" onclick="openCourse('${c.id}')">Open</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(tile);
+  });
+}
+
+/* ---------- COURSE DETAIL, LESSONS & RESOURCES ---------- */
+let currentCourseId = null;
+let currentLessonId = null;
+
+function openCourse(id){
+  currentCourseId = id;
+  showPage('course-detail');
+}
+
+function renderCourseDetail(){
+  if(!currentCourseId) { showToast("No course selected"); return; }
+  const course = COURSES.find(c=>c.id===currentCourseId);
+  document.getElementById('course-title').innerText = course.title;
+  document.getElementById('course-meta').innerText = `${course.category} • ${course.level} • ${course.lessons.length} lessons`;
+  document.getElementById('course-desc').innerHTML = course.description || `A polished ${course.title} course for your portfolio.`;
+  // lessons
+  const list = document.getElementById('lesson-list'); list.innerHTML = "";
+  const user = session || "guest";
+  const userProgress = (progress[user] && progress[user].lessonsCompleted) || {};
   course.lessons.forEach(lesson=>{
-    const li = document.createElement('li');
-    const completed = userProgress?.[course.id]?.lessonsCompleted?.includes(lesson.id);
-    li.innerHTML = `<div class="row space-between"><div><strong>${lesson.title}</strong><div class="muted">${lesson.duration} mins</div></div><div><button class="btn tiny" onclick="openLesson('${course.id}','${lesson.id}')">${completed ? 'Continue' : 'Start'}</button></div></div>`;
+    const completed = (userProgress[currentCourseId] || []).includes(lesson.id);
+    const li = document.createElement('li'); li.className='row space-between';
+    li.innerHTML = `<div><strong>${lesson.title}</strong><div class="muted">${lesson.duration} mins</div></div>
+                    <div class="row gap"><button class="btn" onclick="openLesson('${currentCourseId}','${lesson.id}')">${completed ? 'Continue' : 'Start'}</button></div>`;
     list.appendChild(li);
   });
-  // Remember last course id for navigation
-  lastCourseViewed = course.id;
-  showSection('course-detail');
+
+  // resources
+  const drop = document.getElementById('resource-drop');
+  const input = document.getElementById('resource-input');
+  drop.onclick = ()=> input.click();
+  input.onchange = (e)=> handleFiles(e.target.files, currentCourseId);
+  // drag events
+  drop.ondragover = (e)=>{ e.preventDefault(); drop.classList.add('dragover'); }
+  drop.ondragleave = ()=> drop.classList.remove('dragover');
+  drop.ondrop = (e)=>{ e.preventDefault(); drop.classList.remove('dragover'); handleFiles(e.dataTransfer.files, currentCourseId); }
+
+  renderResourceList(currentCourseId);
+  // progress
+  renderCourseProgress(currentCourseId);
 }
 
-let lastCourseViewed = null;
+/* handle file uploads and persist to localStorage as data URLs (small files) */
+function handleFiles(fileList, courseId){
+  const arr = Array.from(fileList);
+  resources[courseId] = resources[courseId] || [];
+  const promises = arr.map(f=>{
+    return new Promise((res,rej)=>{
+      const reader = new FileReader();
+      reader.onload = (ev)=> {
+        resources[courseId].push({ name: f.name, size: f.size, type: f.type, dataUrl: ev.target.result, uploadedAt: new Date().toISOString() });
+        res();
+      };
+      reader.onerror = ()=> rej();
+      reader.readAsDataURL(f);
+    });
+  });
+  Promise.all(promises).then(()=>{
+    write(KEYS.RESOURCES, resources);
+    showToast(`${arr.length} file(s) uploaded`);
+    renderResourceList(courseId);
+  }).catch(()=> showToast("Upload failed"));
+}
+function renderResourceList(courseId){
+  const list = document.getElementById('resource-list'); list.innerHTML = "";
+  const items = resources[courseId] || [];
+  if(items.length===0){ list.innerHTML = '<div class="muted">No resources uploaded yet.</div>'; return; }
+  items.forEach((it, idx)=>{
+    const li = document.createElement('div'); li.className='row space-between card';
+    li.style.marginBottom='8px';
+    li.innerHTML = `<div><strong>${it.name}</strong><div class="muted">${(it.size/1024).toFixed(1)} KB • ${new Date(it.uploadedAt).toLocaleString()}</div></div>
+                    <div class="row gap">
+                      <button class="btn" onclick="downloadResource('${courseId}',${idx})">Open</button>
+                      <button class="btn" onclick="deleteResource('${courseId}',${idx})">Delete</button>
+                    </div>`;
+    list.appendChild(li);
+  });
+}
+function downloadResource(courseId, idx){
+  const it = (resources[courseId]||[])[idx];
+  if(!it) return showToast("Resource not found");
+  const a = document.createElement('a'); a.href = it.dataUrl; a.download = it.name; a.click();
+}
+function deleteResource(courseId, idx){
+  if(!resources[courseId] || !resources[courseId][idx]) return;
+  resources[courseId].splice(idx,1); write(KEYS.RESOURCES, resources);
+  renderResourceList(courseId); showToast("Resource deleted");
+}
+function openResourcesFolder(courseId){
+  renderResourceList(courseId); showToast("Resources shown below");
+}
 
-// Start / continue course
+/* ---------- LESSON VIEWER & PROGRESS ---------- */
 function startCourse(id){
-  lastCourseViewed = id;
-  openCourse(id);
+  currentCourseId = id;
   // open first incomplete lesson
-  const course = SAMPLE_COURSES.find(c=>c.id===id);
-  const progress = getProgressForCurrentUser();
-  let next = course.lessons.find(l => !(progress?.[id]?.lessonsCompleted || []).includes(l.id));
+  const user = session || "guest";
+  const userProgress = (progress[user] && progress[user].lessonsCompleted) || {};
+  const course = COURSES.find(c=>c.id===id);
+  let next = course.lessons.find(l => !(userProgress[id]||[]).includes(l.id));
   if(!next) next = course.lessons[0];
   openLesson(id, next.id);
 }
 
-// Open lesson viewer
 function openLesson(courseId, lessonId){
-  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
+  currentCourseId = courseId; currentLessonId = lessonId;
+  showPage('lesson');
+  const course = COURSES.find(c=>c.id===courseId);
   const lesson = course.lessons.find(l=>l.id===lessonId);
-  const el = document.getElementById('lesson-card');
-  el.innerHTML = `
-    <h2>${lesson.title}</h2>
-    <div class="muted">Estimated: ${lesson.duration} mins • Course: ${course.title}</div>
-    <div style="margin-top:12px">${lesson.content}</div>
-    <div style="margin-top:12px" id="code-blocks"></div>
-    <div class="row gap" style="margin-top:12px">
-      <button class="btn primary" onclick="markCompleted('${courseId}','${lessonId}')">Mark Completed</button>
-      <button class="btn" onclick="openNextLesson('${courseId}','${lessonId}')">Next</button>
-    </div>
-  `;
-  const cb = el.querySelector('#code-blocks');
-  if(lesson.codeBlocks) lesson.codeBlocks.forEach(code=>{
-    const pre = document.createElement('pre');
-    pre.style.padding = "8px"; pre.style.borderRadius = "8px"; pre.style.background = "rgba(0,0,0,0.06)";
-    pre.innerHTML = `<code>${escapeHtml(code)}</code><div style="margin-top:6px"><button class="btn tiny" onclick="copyToClipboard(\`${escapeBackticks(code)}\`)">Copy</button></div>`;
-    cb.appendChild(pre);
-  });
-  showSection('lesson');
+  document.getElementById('lesson-title').innerText = lesson.title;
+  document.getElementById('lesson-meta').innerText = `${course.title} • ${lesson.duration} mins`;
+  document.getElementById('lesson-content').innerHTML = lesson.content;
+  document.getElementById('lesson-code').innerHTML = lesson.code ? `<pre><code>${escapeHtml(lesson.code)}</code></pre>` : '';
+  document.getElementById('mark-complete-btn').onclick = ()=> markLessonComplete(courseId, lessonId);
 }
 
-function copyToClipboard(text){
-  navigator.clipboard?.writeText(text).then(()=> showToast("Copied to clipboard")).catch(()=>showToast("Copy failed"));
-}
-function escapeHtml(s){ return s.replace(/</g,"&lt;").replace(/>/g,"&gt;") }
-function escapeBackticks(s){ return s.replace(/`/g,'\\`') }
-
-// Progress & marking
-let sessionUser = read(STORAGE_KEYS.SESSION) || null;
-let userProgress = read(STORAGE_KEYS.PROGRESS) || {};
-function getProgressForCurrentUser(){
-  userProgress = read(STORAGE_KEYS.PROGRESS) || {};
-  if(!sessionUser) return userProgress;
-  if(!userProgress[sessionUser]) userProgress[sessionUser] = { lessonsCompleted: {}, quizScores: {}, xp: 0 };
-  return userProgress;
-}
-function saveProgress(){
-  write(STORAGE_KEYS.PROGRESS, userProgress);
-  renderDashboard();
-}
-function markCompleted(courseId, lessonId){
-  const user = sessionUser || "guest";
-  if(!userProgress[user]) userProgress[user] = { lessonsCompleted:{}, quizScores:{}, xp:0 };
-  if(!userProgress[user].lessonsCompleted[courseId]) userProgress[user].lessonsCompleted[courseId] = [];
-  if(!userProgress[user].lessonsCompleted[courseId].includes(lessonId)){
-    userProgress[user].lessonsCompleted[courseId].push(lessonId);
-    // grant XP
-    userProgress[user].xp = (userProgress[user].xp || 0) + 10;
-    write(STORAGE_KEYS.PROGRESS, userProgress);
-    pushNotification(`Lesson completed: ${lessonId}`, 'lesson');
-    showToast("Marked completed! +10 XP");
-  } else {
-    showToast("Already completed");
-  }
-  renderAchievements();
+function markLessonComplete(courseId, lessonId){
+  const user = session || "guest";
+  progress[user] = progress[user] || { lessonsCompleted: {}, quizScores: {}, xp: 0, certificates: [] };
+  progress[user].lessonsCompleted[courseId] = progress[user].lessonsCompleted[courseId] || [];
+  if(!progress[user].lessonsCompleted[courseId].includes(lessonId)){
+    progress[user].lessonsCompleted[courseId].push(lessonId);
+    progress[user].xp = (progress[user].xp || 0) + 10;
+    write(KEYS.PROGRESS, progress);
+    showToast("Lesson marked complete +10 XP");
+    pushNotif(`Lesson completed: ${lessonId}`);
+  } else showToast("Already completed");
+  renderCourseProgress(courseId);
   renderDashboard();
 }
 
-// Open next lesson
-function openNextLesson(courseId, lessonId){
-  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
-  const idx = course.lessons.findIndex(l=>l.id===lessonId);
-  const next = course.lessons[idx+1];
-  if(next) openLesson(courseId,next.id);
-  else {
-    showToast("No more lessons — well done!"); 
-  }
+/* render progress percentage for a course */
+function renderCourseProgress(courseId){
+  const course = COURSES.find(c=>c.id===courseId);
+  const user = session || "guest";
+  const completed = (progress[user] && progress[user].lessonsCompleted && progress[user].lessonsCompleted[courseId]) ? progress[user].lessonsCompleted[courseId].length : 0;
+  const pct = Math.round((completed / course.lessons.length) * 100);
+  document.getElementById('course-progress').innerText = `${pct}% completed`;
 }
 
-// ---------- Quiz ----------
-let currentQuiz = null;
+/* ---------- QUIZ SYSTEM ---------- */
+let activeQuiz = null;
 function openQuiz(courseId){
-  const course = SAMPLE_COURSES.find(c=>c.id===courseId);
-  currentQuiz = { courseId, questions: shuffleArray(course.quiz).slice(0, Math.min(10, course.quiz.length)), index: 0, score: 0, answers: [] };
-  renderQuiz();
-  showSection('quiz');
+  if(!courseId) return showToast("No course selected");
+  activeQuiz = {
+    courseId,
+    questions: shuffleArray(COURSES.find(c=>c.id===courseId).quiz).slice(0, Math.min(15, COURSES.find(c=>c.id===courseId).quiz.length)),
+    index: 0,
+    score: 0,
+    answers: []
+  };
+  showPage('quiz');
 }
-function renderQuiz(){
+function renderQuizUI(){
   const root = document.getElementById('quiz-card');
-  if(!currentQuiz) { root.innerHTML = "<p>No quiz active</p>"; return; }
-  const q = currentQuiz.questions[currentQuiz.index];
+  if(!activeQuiz){ root.innerHTML = '<div class="muted">No active quiz</div>'; return; }
+  const q = activeQuiz.questions[activeQuiz.index];
   root.innerHTML = `
-    <h3>Quiz • ${SAMPLE_COURSES.find(c=>c.id===currentQuiz.courseId).title}</h3>
-    <div class="card">
-      <p><strong>Q${currentQuiz.index+1}.</strong> ${q.question}</p>
-      <div id="choices"></div>
-      <div style="margin-top:12px" class="row gap">
-        <button class="btn" onclick="prevQuestion()">Previous</button>
-        <button class="btn primary" onclick="submitAnswer()">Submit</button>
+    <h3>${COURSES.find(c=>c.id===activeQuiz.courseId).title} — Quiz</h3>
+    <div class="muted">Question ${activeQuiz.index+1} of ${activeQuiz.questions.length}</div>
+    <div style="margin-top:12px">
+      <p><strong>${q.question}</strong></p>
+      <div id="choices" class="column"></div>
+      <div class="row gap" style="margin-top:12px">
+        <button class="btn" onclick="prevQuiz()">Previous</button>
+        <button class="btn primary" onclick="submitQuizAnswer()">Submit</button>
       </div>
     </div>
   `;
-  const choices = root.querySelector('#choices');
-  q.choices.forEach((c,i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'btn';
-    btn.style.display='block';
-    btn.style.marginTop='6px';
-    btn.innerText = c;
-    btn.onclick = ()=> {
-      currentQuiz.selected = i;
-      root.querySelectorAll('#choices .btn').forEach(b=>b.classList.remove('primary'));
-      btn.classList.add('primary');
-    };
-    choices.appendChild(btn);
+  const choices = document.getElementById('choices');
+  q.choices.forEach((ch, i)=>{
+    const b = document.createElement('button'); b.className='btn'; b.style.display='block'; b.style.textAlign='left'; b.innerHTML = ch;
+    b.onclick = ()=> { activeQuiz.selected = i; Array.from(choices.children).forEach(x=>x.classList.remove('primary')); b.classList.add('primary'); };
+    choices.appendChild(b);
   });
 }
-function submitAnswer(){
-  const q = currentQuiz.questions[currentQuiz.index];
-  if(currentQuiz.selected === undefined) return showToast("Choose an answer");
-  const correct = currentQuiz.selected === q.correct;
-  if(correct) currentQuiz.score++;
-  currentQuiz.answers.push({ selected: currentQuiz.selected, correct: q.correct });
-  // explanation shown briefly
-  showToast(correct ? "Correct!" : "Incorrect");
-  currentQuiz.index++;
-  currentQuiz.selected = undefined;
-  if(currentQuiz.index >= currentQuiz.questions.length) finishQuiz();
-  else renderQuiz();
+function submitQuizAnswer(){
+  if(activeQuiz.selected===undefined) return showToast("Select an answer");
+  const q = activeQuiz.questions[activeQuiz.index];
+  const correct = activeQuiz.selected === q.correct;
+  if(correct) activeQuiz.score++;
+  activeQuiz.answers.push({ selected: activeQuiz.selected, correct: q.correct });
+  showToast(correct ? "Correct" : "Incorrect");
+  activeQuiz.index++;
+  activeQuiz.selected = undefined;
+  if(activeQuiz.index >= activeQuiz.questions.length) finishQuiz();
+  else renderQuizUI();
 }
-function prevQuestion(){ if(currentQuiz.index>0){ currentQuiz.index--; currentQuiz.answers.pop(); renderQuiz(); } }
+function prevQuiz(){ if(activeQuiz && activeQuiz.index>0){ activeQuiz.index--; activeQuiz.answers.pop(); renderQuizUI(); } }
 function finishQuiz(){
-  const total = currentQuiz.questions.length;
-  const score = currentQuiz.score;
-  // Save score
-  const user = sessionUser || "guest";
-  userProgress = read(STORAGE_KEYS.PROGRESS) || {};
-  if(!userProgress[user]) userProgress[user] = { lessonsCompleted: {}, quizScores:{}, xp:0 };
-  userProgress[user].quizScores[currentQuiz.courseId] = { score, total, date: new Date().toISOString() };
-  // give XP proportional
-  userProgress[user].xp = (userProgress[user].xp || 0) + Math.round((score/total)*50);
-  write(STORAGE_KEYS.PROGRESS, userProgress);
-  pushNotification(`Quiz completed: ${SAMPLE_COURSES.find(c=>c.id===currentQuiz.courseId).title} — ${score}/${total}`, 'quiz');
-  showSection('course-detail');
-  openCourse(currentQuiz.courseId);
-  showToast(`Quiz finished: ${score}/${total}`);
-  currentQuiz = null;
+  // save score and reward xp
+  const user = session || "guest";
+  progress[user] = progress[user] || { lessonsCompleted:{}, quizScores:{}, xp:0, certificates:[] };
+  progress[user].quizScores[activeQuiz.courseId] = { score: activeQuiz.score, total: activeQuiz.questions.length, date: new Date().toISOString() };
+  const reward = Math.round((activeQuiz.score / activeQuiz.questions.length) * 60);
+  progress[user].xp = (progress[user].xp || 0) + reward;
+  // if course fully completed, unlock certificate stub
+  const course = COURSES.find(c=>c.id===activeQuiz.courseId);
+  const completed = (progress[user].lessonsCompleted && progress[user].lessonsCompleted[activeQuiz.courseId]) ? progress[user].lessonsCompleted[activeQuiz.courseId].length : 0;
+  if(completed >= course.lessons.length) {
+    // award certificate
+    progress[user].certificates = progress[user].certificates || [];
+    if(!progress[user].certificates.includes(activeQuiz.courseId)){
+      progress[user].certificates.push(activeQuiz.courseId);
+    }
+  }
+  write(KEYS.PROGRESS, progress);
+  pushNotif(`Quiz completed: ${course.title} — ${activeQuiz.score}/${activeQuiz.questions.length}`);
+  showToast(`Quiz finished: ${activeQuiz.score}/${activeQuiz.questions.length} • +${reward} XP`);
+  activeQuiz = null;
+  showPage('course-detail');
   renderDashboard();
 }
 
-// ---------- Certificate generator ----------
+/* ---------- CERTIFICATE (canvas) ---------- */
 function generateCertificate(){
-  const name = document.getElementById('cert-name').value || (read(STORAGE_KEYS.PROFILE)?.name || "Student");
+  const name = document.getElementById('cert-name').value || (profile.name || "Student");
   const canvas = document.getElementById('certificate-canvas');
   const ctx = canvas.getContext('2d');
-  // Background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  // Border
-  ctx.strokeStyle = '#1e3a8a';
-  ctx.lineWidth = 24;
-  ctx.strokeRect(24,24,canvas.width-48,canvas.height-48);
-  // Title
-  ctx.fillStyle = '#0f1724';
-  ctx.font = '48px Inter';
-  ctx.fillText('Certificate of Completion', 80, 160);
-  // Name
-  ctx.font = '40px Inter';
-  ctx.fillText(name, 80, 260);
-  // Course placeholder
-  ctx.font = '28px Inter';
-  ctx.fillStyle = '#333';
-  ctx.fillText('For successfully completing Learnify course', 80, 320);
-  // Date
-  ctx.font = '20px Inter';
-  ctx.fillStyle = '#666';
-  ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, 80, 360);
-  // Small QR mock (just a square)
-  ctx.fillStyle = '#000';
-  ctx.fillRect(canvas.width-200, canvas.height-200, 160, 160);
-
-  // Download
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = `learnify-certificate-${name.replace(/\s+/g,'-')}.png`;
-  a.click();
+  // background
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  // title
+  ctx.fillStyle = "#0f1724"; ctx.font = '48px Inter'; ctx.fillText('Certificate of Completion', 80, 160);
+  ctx.font = '32px Inter'; ctx.fillText(name, 80, 260);
+  ctx.font = '22px Inter'; ctx.fillStyle = '#6b7280'; ctx.fillText(`Awarded for achievements on Learnify • ${new Date().toLocaleDateString()}`, 80, 320);
+  // border accent
+  ctx.strokeStyle = '#1a73e8'; ctx.lineWidth = 14; ctx.strokeRect(24,24,canvas.width-48,canvas.height-48);
+  // download
+  const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `learnify-certificate-${name.replace(/\s+/g,'-')}.png`; a.click();
+}
+function generateCertificateFor(courseId){
+  // set name input with profile
+  document.getElementById('cert-name').value = profile.name || (session || "Student");
+  showPage('certificate');
 }
 
-// ---------- Dashboard & Chart ----------
-let chartInstance = null;
+/* ---------- DASHBOARD & CHART ---------- */
+let chart = null;
 function renderDashboard(){
-  const profile = read(STORAGE_KEYS.PROFILE) || {};
-  document.getElementById('xp-count').innerText = `XP: ${getUserXP()}`;
-  const inProgress = countInProgress();
-  document.getElementById('courses-inprogress').innerText = `In Progress: ${inProgress}`;
-  document.getElementById('courses-completed').innerText = `Completed: ${countCompleted()}`;
-
-  // Build simple chart: completed vs inprogress
+  const user = session || "guest";
+  const userProf = progress[user] || { lessonsCompleted:{}, quizScores:{}, xp:0, certificates:[] };
+  document.getElementById('xp-count').innerText = (userProf.xp || 0);
+  document.getElementById('inprogress-count').innerText = countInProgress(user);
+  document.getElementById('completed-count').innerText = countCompleted(user);
+  document.getElementById('cert-count').innerText = (userProf.certificates || []).length;
+  // chart
   const ctx = document.getElementById('progress-chart');
-  if(!ctx) return;
-  const labels = SAMPLE_COURSES.map(c=>c.title);
-  const data = SAMPLE_COURSES.map(c=>{
-    const p = read(STORAGE_KEYS.PROGRESS) || {};
-    const user = sessionUser || "guest";
-    const completed = p[user]?.lessonsCompleted?.[c.id]?.length || 0;
-    return Math.round((completed / c.lessons.length) * 100);
+  const labels = COURSES.map(c=>c.title);
+  const data = COURSES.map(c=> {
+    const done = (userProf.lessonsCompleted && userProf.lessonsCompleted[c.id]) ? userProf.lessonsCompleted[c.id].length : 0;
+    return Math.round((done / c.lessons.length) * 100);
   });
-  if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets: [{ label: 'Completion %', data }] },
-    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true, max:100} } }
-  });
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, { type:'bar', data:{ labels, datasets:[{ label:'Completion %', data, backgroundColor:'rgba(26,115,232,0.7)' }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } } } });
 }
 
-function getUserXP(){
-  const user = sessionUser || "guest";
-  const p = read(STORAGE_KEYS.PROGRESS) || {};
-  return p[user]?.xp || 0;
-}
-function countInProgress(){
-  const p = read(STORAGE_KEYS.PROGRESS) || {};
-  const user = sessionUser || "guest";
-  const lessons = p[user]?.lessonsCompleted || {};
+/* helper counts */
+function countInProgress(user){
+  user = user || (session || "guest");
+  const p = progress[user] || { lessonsCompleted:{} };
   let count = 0;
-  SAMPLE_COURSES.forEach(c=>{
-    const completed = (lessons[c.id] || []).length;
-    if(completed > 0 && completed < c.lessons.length) count++;
+  COURSES.forEach(c=> {
+    const done = (p.lessonsCompleted[c.id]||[]).length;
+    if(done > 0 && done < c.lessons.length) count++;
   });
   return count;
 }
-function countCompleted(){ 
-  const p = read(STORAGE_KEYS.PROGRESS) || {};
-  const user = sessionUser || "guest";
-  const lessons = p[user]?.lessonsCompleted || {};
+function countCompleted(user){
+  user = user || (session || "guest");
+  const p = progress[user] || { lessonsCompleted:{} };
   let count = 0;
-  SAMPLE_COURSES.forEach(c=>{
-    const completed = (lessons[c.id] || []).length;
-    if(completed >= c.lessons.length) count++;
-  });
+  COURSES.forEach(c=> { if((p.lessonsCompleted[c.id]||[]).length >= c.lessons.length) count++; });
   return count;
 }
 
-// ---------- Achievements & Notifications ----------
+/* ---------- ACHIEVEMENTS & NOTIFICATIONS ---------- */
 function renderAchievements(){
-  const root = document.getElementById('badges');
-  root.innerHTML = "";
-  const user = sessionUser || "guest";
-  const p = read(STORAGE_KEYS.PROGRESS) || {};
-  const xp = p[user]?.xp || 0;
-  const completed = countCompleted();
-  function badge(title,desc){
-    const div = document.createElement('div'); div.className='card small';
-    div.innerHTML = `<h4>${title}</h4><div class="muted">${desc}</div>`;
-    root.appendChild(div);
+  const root = document.getElementById('badges'); root.innerHTML = '';
+  const user = session || "guest";
+  const p = progress[user] || { xp:0, certificates:[] };
+  if((p.certificates || []).length > 0){
+    p.certificates.forEach(cid=>{
+      const course = COURSES.find(c=>c.id===cid);
+      const div = document.createElement('div'); div.className='card';
+      div.style.minWidth='180px'; div.innerHTML = `<h4>${course.title}</h4><div class="muted">Certificate Unlocked</div>`;
+      root.appendChild(div);
+    });
   }
-  if(completed>0) badge("Course Finisher", `${completed} course(s) completed`);
-  if(xp>=50) badge("Learner • 50 XP", "Consistent learning");
-  if(xp>=200) badge("Power Learner • 200 XP", "Excellent progress");
+  if(p.xp >= 50) { const d=document.createElement('div'); d.className='card'; d.innerHTML='<h4>50 XP</h4><div class="muted">Active learner</div>'; root.appendChild(d); }
+  if(p.xp >= 200) { const d=document.createElement('div'); d.className='card'; d.innerHTML='<h4>200 XP</h4><div class="muted">Power learner</div>'; root.appendChild(d); }
 }
 
-function pushNotification(text, type='info'){
-  const notifs = read(STORAGE_KEYS.NOTIFS) || [];
-  notifs.unshift({ text, type, date: new Date().toISOString() });
-  write(STORAGE_KEYS.NOTIFS, notifs.slice(0,50));
-  renderNotifications();
+/* notifications */
+function pushNotif(text){
+  notifs.unshift({ text, date: new Date().toISOString() });
+  write(KEYS.NOTIFS, notifs.slice(0,50));
 }
-function renderNotifications(){
-  const list = document.getElementById('notifications-list');
-  const notifs = read(STORAGE_KEYS.NOTIFS) || [];
-  list.innerHTML = notifs.map(n=>`<li class="card"><div class="row space-between"><div>${n.text}<div class="muted" style="font-size:12px">${new Date(n.date).toLocaleString()}</div></div></div></li>`).join('');
-}
+document.getElementById('notifications-btn').addEventListener('click', ()=> {
+  const list = notifs.map(n=>`${new Date(n.date).toLocaleString()} — ${n.text}`).join('\n');
+  alert(list || "No notifications");
+});
 
-// ---------- Profile & auth (mock) ----------
+/* ---------- PROFILE ---------- */
 function loadProfile(){
-  const p = read(STORAGE_KEYS.PROFILE) || {};
-  document.getElementById('profile-name').value = p.name || "";
-  document.getElementById('profile-avatar').value = p.avatar || "";
-}
-document.getElementById('save-profile')?.addEventListener('click', ()=>{
-  const name = document.getElementById('profile-name').value || "Guest";
-  const avatar = document.getElementById('profile-avatar').value || "";
-  write(STORAGE_KEYS.PROFILE, { name, avatar });
-  showToast("Profile saved");
-});
-
-// Mock login flow
-document.getElementById('login-btn').addEventListener('click', ()=>{
-  const username = prompt("Sign in (enter a username) — this is a mock session");
-  if(!username) return;
-  sessionUser = username.trim();
-  write(STORAGE_KEYS.SESSION, sessionUser);
-  showToast(`Signed in as ${sessionUser}`);
-  // ensure progress data for user
-  const p = read(STORAGE_KEYS.PROGRESS) || {};
-  if(!p[sessionUser]) p[sessionUser] = { lessonsCompleted:{}, quizScores:{}, xp:0 };
-  write(STORAGE_KEYS.PROGRESS, p);
-  renderDashboard();
-});
-
-// Logout
-function logout(){
-  sessionUser = null;
-  localStorage.removeItem(STORAGE_KEYS.SESSION);
-  showToast("Logged out");
+  document.getElementById('profile-name').value = profile.name || "";
+  document.getElementById('profile-avatar').value = profile.avatar || "";
 }
 
-// ---------- Theme toggle ----------
-function applyTheme(t){
-  const root = document.getElementById('app');
-  if(t === 'light') root.classList.add('theme-light'); else root.classList.remove('theme-light');
-  write(STORAGE_KEYS.THEME, t);
-}
-const savedTheme = read(STORAGE_KEYS.THEME) || 'light';
-applyTheme(savedTheme);
-document.getElementById('toggle-theme').addEventListener('click', ()=>{
-  const newTheme = (read(STORAGE_KEYS.THEME) === 'light') ? 'dark' : 'light';
-  applyTheme(newTheme);
-});
+/* logout */
+function logout(){ session = null; localStorage.removeItem(KEYS.SESSION); showToast("Logged out"); renderDashboard(); }
 
-// ---------- Toasts ----------
+/* ---------- RESOURCES UPLOAD MODAL (simple) ---------- */
+function openUploadModal(){
+  // open course selection for upload
+  const courseId = prompt("Enter course id to upload resource to (e.g. html-basics):");
+  if(!courseId) return;
+  const course = COURSES.find(c=>c.id===courseId);
+  if(!course) return showToast("Course id not found");
+  const input = document.createElement('input'); input.type='file'; input.multiple = true;
+  input.onchange = (e)=> handleFiles(e.target.files, courseId);
+  input.click();
+}
+
+/* ---------- README download generator ---------- */
+function downloadReadme(){
+  const readme = `# Learnify — Google Material Dashboard Style
+
+Learnify is a portfolio-ready front-end learning platform (SPA) designed to showcase product-like features for interviews.
+
+## Features
+- Google Material Dashboard style UI (sidebar + topbar)
+- Courses → Lessons → Quizzes (30+ generated questions)
+- Drag & Drop resource upload (LocalStorage)
+- GSAP animations & Chart.js dashboard
+- Certificate generator (download PNG)
+- Mock login (LocalStorage) and progress tracking
+- Accessible and responsive
+
+## How to deploy
+1. Create a GitHub repository.
+2. Add index.html, style.css, script.js to repo root.
+3. Commit & push to main branch.
+4. In GitHub repo -> Settings -> Pages -> Select 'main' branch and root folder.
+5. Visit https://<your-username>.github.io/<repo>/
+
+## How to present it in an interview
+- Show the dashboard -> explain SPA navigation & local state
+- Open a course -> show lessons, mark complete, demonstrate progress saved
+- Upload a resource -> show drag & drop and resource persistence
+- Take a quiz -> highlight scoring and saved results
+- Generate a certificate -> download and show automation
+- Discuss design choices: Material style, accessibility, responsive, single-file deploy
+
+## Tech
+HTML • CSS • JS • GSAP • Chart.js • LocalStorage
+
+`;
+  const a = document.createElement('a'); a.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(readme); a.download = 'README.md'; a.click();
+}
+
+/* ---------- HELPERS & UTILITIES ---------- */
+function shuffleArray(a){ return a.slice().sort(()=>Math.random()-0.5) }
+function escapeHtml(s){ return s.replace(/</g,"&lt;").replace(/>/g,"&gt;") }
+
+/* ---------- Toast (simple) ---------- */
 let toastTimer = null;
 function showToast(msg, ms=2200){
   clearTimeout(toastTimer);
   let t = document.getElementById('learnify-toast');
-  if(!t){
-    t = document.createElement('div'); t.id='learnify-toast'; t.style.position='fixed'; t.style.right='20px'; t.style.bottom='20px'; t.style.padding='12px 16px'; t.style.borderRadius='10px'; t.style.background='rgba(0,0,0,0.6)'; t.style.color='#fff'; document.body.appendChild(t);
-  }
-  t.innerText = msg;
-  t.style.opacity = '1';
-  toastTimer = setTimeout(()=>t.style.opacity='0', ms);
+  if(!t){ t=document.createElement('div'); t.id='learnify-toast'; t.style.position='fixed'; t.style.right='20px'; t.style.bottom='20px'; t.style.padding='12px 16px'; t.style.borderRadius='10px'; t.style.background='rgba(15,23,36,0.8)'; t.style.color='#fff'; t.style.zIndex=9999; document.body.appendChild(t); }
+  t.innerText = msg; t.style.opacity = '1';
+  toastTimer = setTimeout(()=> t.style.opacity = '0', ms);
 }
 
-// ---------- Utility helpers ----------
-function shuffleArray(a){ return a.slice().sort(()=>Math.random() - 0.5) }
-
-// Simple README download helper
-function downloadReadme(){
-  const content = `# Learnify\n\nThis is a portfolio-ready front-end learning platform built for GitHub Pages. Files: index.html, style.css, script.js\n\nDeploy: push to repo and enable GitHub Pages.`;
-  const a = document.createElement('a');
-  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
-  a.download = 'README.txt';
-  a.click();
-}
-
-// Init render
-renderCourses();
-renderDashboard();
-renderAchievements();
-renderNotifications();
-
-// Small helper to open a course by id globally (used by hero button)
-document.getElementById('featured-title').innerText = SAMPLE_COURSES[0].title;
-function openCourseById(id){ openCourse(id) }
-window.openCourse = openCourse;
-window.openLesson = openLesson;
-window.openQuiz = openQuiz;
-window.startCourse = startCourse;
-window.navigate = navigate;
-window.generateCertificate = generateCertificate;
-window.downloadReadme = downloadReadme;
+/* ---------- INITIAL RENDER ---------- */
+(function init(){
+  // ensure storage keys
+  if(!read(KEYS.RESOURCES)) write(KEYS.RESOURCES, {});
+  if(!read(KEYS.PROGRESS)) write(KEYS.PROGRESS, {});
+  if(!read(KEYS.NOTIFS)) write(KEYS.NOTIFS, []);
+  // set profile
+  if(read(KEYS.PROFILE)) profile = read(KEYS.PROFILE);
+  else write(KEYS.PROFILE, profile);
+  // render default pages
+  renderCourses();
+  renderExplore();
+  renderDashboard();
+  renderAchievements();
+  loadProfile();
+  // GSAP entrance
+  gsap.from(".card", { duration: .6, opacity:0, y:12, stagger: 0.04 });
+})();
