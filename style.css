@@ -1,236 +1,289 @@
-/* style.css
-   Learnify — Google Material Blue theme
-   Google Material Dashboard look: collapsible sidebar (desktop + mobile),
-   topbar, cards, grid, dropzone, responsive, light/dark themes, utility classes.
-*/
+/* =========================================================
+   GOOGLE-STYLE LEARNING PLATFORM — COMPLETE STYLE.CSS
+   ========================================================= */
 
-/* -------------------- Theme variables -------------------- */
-:root{
-  --primary: #1E88E5;       /* Google Material Blue */
-  --primary-600: #1565C0;
-  --bg: #f5f7fb;
-  --surface: #ffffff;
-  --muted: #6b7280;
-  --text: #0f1724;
-  --card-shadow: 0 8px 28px rgba(15,23,36,0.06);
-  --glass: rgba(255,255,255,0.6);
+/* Root Variables */
+:root {
+  --primary: #1a73e8;
+  --primary-hover: #1664cc;
+  --accent: #34a853;
+  --danger: #ea4335;
+  --warning: #fbbc04;
+  --text: #202124;
+  --text-light: #5f6368;
+  --bg: #ffffff;
+  --bg-light: #f8f9fa;
+  --border: #e0e0e0;
   --radius: 12px;
-  --gap: 14px;
-  --trans: 220ms cubic-bezier(.2,.8,.2,1);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: 0.3s ease;
+  font-family: "Inter", "Roboto", sans-serif;
 }
 
-/* Dark theme overrides */
-.theme-dark{
-  --bg: #0b1220;
-  --surface: #0f1724;
-  --muted: #9aa6b2;
-  --text: #e6eef6;
-  --card-shadow: 0 10px 36px rgba(2,6,23,0.6);
+/* Global Reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; background: var(--bg-light); }
+body { color: var(--text); }
+
+/* ===========================
+   HEADER (Google-Style)
+   =========================== */
+header {
+  background: var(--bg);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-/* -------------------- Base resets -------------------- */
-*{box-sizing:border-box}
-html,body,#app{height:100%}
-body{
-  margin:0;
-  font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.45;
-  -webkit-tap-highlight-color: transparent;
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary);
 }
 
-/* Links */
-a{color:inherit; text-decoration:none}
-
-/* -------------------- Topbar -------------------- */
-.topbar{
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:10px 18px;
-  position:sticky;
-  top:0; z-index:60;
-  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
-  box-shadow: 0 2px 8px rgba(15,23,36,0.04);
-  transition: background var(--trans), box-shadow var(--trans);
+header input {
+  width: 260px;
+  padding: 10px 16px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background: var(--bg-light);
+  outline: none;
+  transition: var(--transition);
 }
-.theme-dark .topbar{
-  background: linear-gradient(180deg, rgba(10,14,20,0.6), rgba(10,14,20,0.4));
+header input:focus {
+  border-color: var(--primary);
+  background: var(--bg);
+  box-shadow: var(--shadow);
 }
 
-/* top-left area */
-.top-left{ display:flex; align-items:center; gap:12px; }
-.brand{ display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; }
-.logo{
-  width:44px; height:44px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  background: linear-gradient(135deg, var(--primary), var(--primary-600));
-  color: #fff; font-weight:700; font-size:18px;
-  box-shadow: 0 6px 18px rgba(26,115,232,0.12);
-}
-.brand-text small{ display:block; font-size:12px; color:var(--muted); }
-
-/* search */
-.search-wrap{
-  display:flex; align-items:center; gap:8px;
-  background:var(--surface); padding:8px 12px; border-radius:10px;
-  box-shadow: var(--card-shadow);
-}
-.search-wrap input{ border:0; outline:0; background:transparent; width:220px; font-size:14px; color:var(--text); }
-
-/* top actions */
-.top-actions{ display:flex; align-items:center; gap:10px; }
-.icon-btn{ background:transparent; border:0; padding:8px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
-.icon-btn:hover{ background:rgba(0,0,0,0.03); }
-.btn{ padding:8px 12px; border-radius:10px; border:0; cursor:pointer; background:transparent; }
-.btn.primary{ background:var(--primary); color:#fff; box-shadow:0 8px 22px rgba(30,136,229,0.12); }
-
-/* -------------------- Main layout -------------------- */
-.main-wrap{ display:flex; height: calc(100vh - 64px); overflow:hidden; position:relative; }
-
-/* Sidebar - collapsible by default (Option 2) */
-.sidebar{
-  width:260px;
-  background:var(--surface);
-  padding:16px;
-  border-right:1px solid rgba(0,0,0,0.04);
-  box-shadow: var(--card-shadow);
-  transition: width var(--trans), transform var(--trans), opacity var(--trans);
-  overflow:auto;
-}
-.sidebar.collapsed{ width:78px; }
-.theme-dark .sidebar{ border-right:1px solid rgba(255,255,255,0.03); }
-
-/* Sidebar nav */
-.nav{ display:flex; flex-direction:column; gap:6px; padding-bottom:18px; }
-.nav-link{
-  display:flex; align-items:center; gap:12px;
-  color:var(--muted); padding:10px; border-radius:10px;
-  transition: background var(--trans), color var(--trans), transform 160ms;
-}
-.nav-link .material-icons-outlined{ font-size:20px; color:var(--muted); }
-.nav-link .nav-label{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.nav-link.active{ background: linear-gradient(90deg, rgba(30,136,229,0.08), rgba(30,136,229,0.02)); color:var(--text); }
-.nav-link.active .material-icons-outlined{ color:var(--primary); }
-.nav-sep{ height:1px; background:rgba(0,0,0,0.04); margin:12px 0; border-radius:2px; }
-
-/* sidebar footer */
-.sidebar-footer{ margin-top:12px; font-size:12px; color:var(--muted); }
-
-/* -------------------- Content -------------------- */
-.content{ flex:1; padding:18px; overflow:auto; min-height:0; }
-
-/* Pages */
-.page{ display:none; }
-.page.active{ display:block; }
-
-/* Section and headers */
-.section{ margin-top:18px; }
-.section-header{ display:flex; flex-direction:column; gap:6px; }
-.card{ background:var(--surface); padding:16px; border-radius:12px; box-shadow:var(--card-shadow); transition: transform .18s var(--trans); }
-.card:hover{ transform: translateY(-4px); }
-
-/* grid helpers */
-.grid{ display:grid; gap:var(--gap); }
-.grid-2{ grid-template-columns: 2fr 1fr; }
-.grid-3{ grid-template-columns: 1fr 1fr 1fr; }
-.grid-card{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:var(--gap); margin-top:12px; }
-
-/* dashboard cards */
-.card-large{ padding:18px; }
-.card-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.card-body{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-
-/* stat cards */
-.dashboard-cards{ display:flex; gap:12px; flex-wrap:wrap; }
-.stat-card{ min-width:120px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:12px; border-radius:10px; text-align:left; }
-.stat-card .muted{ font-size:13px; }
-.stat-card h2{ margin:6px 0 0 0; font-size:20px; }
-
-/* quick actions */
-.row{ display:flex; align-items:center; gap:12px; }
-.space-between{ justify-content:space-between; }
-.gap{ gap:12px; }
-.column{ flex-direction:column; }
-
-/* typography helpers */
-.muted{ color:var(--muted); }
-.small{ font-size:13px; }
-
-/* course tiles */
-.course-tile{ display:flex; flex-direction:column; justify-content:space-between; padding:14px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); }
-.course-tile .title{ font-weight:600; font-size:16px; }
-.course-tile .meta{ font-size:13px; color:var(--muted); }
-
-/* lists */
-.list{ padding:0; margin:8px 0 0 0; list-style:none; display:flex; flex-direction:column; gap:8px; }
-
-/* dropzone */
-.dropzone{
-  border:2px dashed rgba(0,0,0,0.08);
-  padding:18px; border-radius:10px; text-align:center; cursor:pointer; margin-top:8px;
-  transition: background var(--trans), border-color var(--trans), box-shadow var(--trans);
-}
-.theme-dark .dropzone{ border:2px dashed rgba(255,255,255,0.05); }
-.dropzone .drop-inner{ display:flex; align-items:center; justify-content:center; gap:10px; flex-direction:column; color:var(--muted); }
-.dropzone.dragover{ background: linear-gradient(90deg, rgba(30,136,229,0.06), rgba(0,0,0,0.02)); border-color: rgba(30,136,229,0.36); box-shadow:0 10px 24px rgba(30,136,229,0.06); }
-
-/* resource list cards */
-#resource-list .card{ padding:10px; display:flex; align-items:center; justify-content:space-between; }
-
-/* lesson content and code block */
-#lesson-content{ font-size:15px; line-height:1.6; }
-pre{ background: rgba(0,0,0,0.04); padding:12px; border-radius:8px; overflow:auto; }
-.theme-dark pre{ background: rgba(255,255,255,0.03); }
-
-/* quiz styles */
-#quiz-card .btn{ display:block; width:100%; text-align:left; margin-top:8px; }
-#quiz-card .btn.primary{ width:auto; }
-
-/* certificate canvas */
-#certificate-canvas{ border-radius:6px; box-shadow: var(--card-shadow); }
-
-/* badges */
-#badges .card{ min-width:160px; text-align:center; }
-
-/* footer */
-.footer{ height:56px; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; color:var(--muted); }
-
-/* small utilities */
-.center{ display:flex; align-items:center; justify-content:center; }
-.hidden{ display:none !important; }
-
-/* -------------------- Collapsed sidebar behavior -------------------- */
-/* When collapsed, hide labels and narrow width */
-.sidebar.collapsed{ width:78px; }
-.sidebar.collapsed .nav-link{ justify-content:center; padding:10px; }
-.sidebar.collapsed .nav-link .nav-label{ display:none; }
-.sidebar.collapsed .sidebar-footer{ display:none; }
-
-/* expand animation */
-.sidebar.show{ transform:translateX(0); opacity:1; }
-
-/* -------------------- Responsive -------------------- */
-@media (max-width:1100px){
-  .sidebar{ position:fixed; left:0; top:64px; bottom:0; transform:translateX(-120%); z-index:80; }
-  .sidebar.show{ transform:translateX(0); }
-  .main-wrap{ flex-direction:column; }
-  .search-wrap input{ width:120px; }
-  .grid-2{ grid-template-columns:1fr; }
-  .grid-3{ grid-template-columns:1fr; }
+/* ===========================
+   LAYOUT
+   =========================== */
+.container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
 }
 
-/* -------------------- GSAP-friendly helpers -------------------- */
-/* small entrance helpers — used by gsap.from() */
-.gsap-fade-up{ opacity:0; transform:translateY(12px); }
-.gsap-stagger{ opacity:0; transform:translateY(8px); }
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+}
 
-/* -------------------- Accessibility and focus states -------------------- */
-button:focus, a:focus, input:focus{ outline: 3px solid rgba(30,136,229,0.14); outline-offset:2px; border-radius:8px; }
+.sidebar h3 {
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
 
-/* -------------------- Transition polish -------------------- */
-*{ transition: color var(--trans), background var(--trans), border-color var(--trans), box-shadow var(--trans); }
+.sidebar button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--bg-light);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sidebar button:hover {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+/* ===========================
+   COURSE CARDS (Google Classroom Style)
+   =========================== */
+.courses {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.course-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.course-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 20px;
+  margin-top: 14px;
+}
+
+.progress {
+  height: 8px;
+  background: var(--primary);
+  border-radius: 20px;
+  width: 0%;
+  transition: width 0.4s;
+}
+
+/* ===========================
+   QUIZ SECTION
+   =========================== */
+.quiz-container {
+  display: none;
+  background: var(--bg);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-top: 20px;
+}
+
+.question {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+}
+
+.option {
+  padding: 14px;
+  background: var(--bg-light);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.option:hover {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.next-btn {
+  margin-top: 10px;
+  padding: 12px 20px;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.next-btn:hover {
+  background: var(--primary-hover);
+}
+
+/* ===========================
+   DRAG-AND-DROP FILE UPLOAD
+   =========================== */
+.drop-zone {
+  margin-top: 20px;
+  padding: 40px;
+  border: 3px dashed var(--primary);
+  border-radius: var(--radius);
+  text-align: center;
+  background: var(--bg);
+  transition: var(--transition);
+}
+
+.drop-zone.highlight {
+  background: #e8f1fc;
+}
+
+.drop-zone p {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+/* Uploaded file list */
+.file-list {
+  margin-top: 10px;
+  list-style: none;
+}
+
+.file-list li {
+  background: var(--bg-light);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+}
+
+/* ===========================
+   GSAP / ANIME.JS ANIMATION HOOKS
+   =========================== */
+.fade-in { opacity: 0; }
+.slide-up { transform: translateY(20px); opacity: 0; }
+.scale-in { transform: scale(0.8); opacity: 0; }
+
+/* ===========================
+   BUTTONS (Google-Style)
+   =========================== */
+.btn {
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-danger {
+  background: var(--danger);
+  color: var(--bg);
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 850px) {
+  .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    position: relative;
+  }
+  header input {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
