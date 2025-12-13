@@ -130,3 +130,52 @@ body {
   border-radius: 12px;
   margin-top: 10px;
 }
+
+/* ===============================
+   Quiz UI (Material Style)
+================================ */
+.quiz-question {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 10px;
+}
+
+.quiz-option {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dadce0;
+  cursor: pointer;
+  transition: all .2s ease;
+  background: #fff;
+}
+
+.quiz-option:hover {
+  background: #f1f3f4;
+}
+
+.quiz-option.correct {
+  background: #e6f4ea;
+  border-color: #1e8e3e;
+  color: #1e8e3e;
+}
+
+.quiz-option.wrong {
+  background: #fce8e6;
+  border-color: #d93025;
+  color: #d93025;
+}
+
+.quiz-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quiz-score {
+  font-weight: 700;
+}
