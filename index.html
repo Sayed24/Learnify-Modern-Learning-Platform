@@ -11,102 +11,252 @@
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
-  <!-- Chart.js -->
+  <!-- Chart.js (stable) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- GSAP (animations) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" crossorigin="anonymous"></script>
 
+  <!-- Main stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
+  <meta name="robots" content="index, follow" />
+  <meta name="description" content="Learnify — Google Material Dashboard style learning platform (portfolio project).">
 </head>
 <body>
-<div id="app" class="theme-light">
+  <div id="app" class="theme-light">
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="top-left">
-      <button id="sidebar-toggle" class="icon-btn">
-        <span class="material-icons-outlined">menu</span>
-      </button>
-      <div class="brand" onclick="showPage('dashboard')">
-        <div class="logo">L</div>
-        <div>
-          <strong>Learnify</strong>
-          <small class="muted">Portfolio</small>
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="top-left">
+        <button id="sidebar-toggle" class="icon-btn" aria-label="Toggle sidebar">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <div class="brand" onclick="showPage('dashboard')">
+          <div class="logo">L</div>
+          <div class="brand-text">
+            <strong>Learnify</strong>
+            <small class="muted">Portfolio Project</small>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="top-actions">
-      <button id="toggle-theme" class="icon-btn">
-        <span class="material-icons-outlined">light_mode</span>
-      </button>
-    </div>
-  </header>
-
-  <div class="main-wrap">
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar collapsed">
-      <nav class="nav">
-        <a class="nav-link active" onclick="showPage('dashboard')">Dashboard</a>
-        <a class="nav-link" onclick="showPage('courses')">Courses</a>
-        <a class="nav-link" onclick="showPage('explore')">Explore</a>
-        <a class="nav-link" onclick="showPage('profile')">Profile</a>
-      </nav>
-    </aside>
-
-    <!-- CONTENT -->
-    <main class="content">
-
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="page active">
-        <h2>Dashboard</h2>
-        <div class="grid">
-          <div class="card"><h3>XP</h3><div id="xp-count">0</div></div>
-          <div class="card"><h3>Completed</h3><div id="completed-count">0</div></div>
+      <div class="top-actions">
+        <div class="search-wrap">
+          <span class="material-icons-outlined">search</span>
+          <input id="global-search" placeholder="Search courses, lessons..." aria-label="Search" />
         </div>
-        <canvas id="progress-chart"></canvas>
-      </section>
+        <button id="toggle-theme" class="icon-btn" title="Toggle theme">
+          <span class="material-icons-outlined">light_mode</span>
+        </button>
+        <button class="icon-btn" id="notifications-btn" title="Notifications">
+          <span class="material-icons-outlined">notifications</span>
+        </button>
+        <button class="btn primary" id="login-btn">Sign In</button>
+      </div>
+    </header>
 
-      <!-- COURSES -->
-      <section id="courses" class="page">
-        <h2>Courses</h2>
-        <div id="courses-grid" class="grid"></div>
-      </section>
+    <div class="main-wrap">
 
-      <!-- COURSE DETAIL -->
-      <section id="course-detail" class="page">
-        <h2 id="course-title"></h2>
-        <p id="course-desc"></p>
-        <ul id="lesson-list"></ul>
-      </section>
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar collapsed">
+        <nav class="nav">
+          <a href="#dashboard" data-route="dashboard" class="nav-link active"><span class="material-icons-outlined">dashboard</span><span class="nav-label">Dashboard</span></a>
+          <a href="#courses" data-route="courses" class="nav-link"><span class="material-icons-outlined">school</span><span class="nav-label">Courses</span></a>
+          <a href="#explore" data-route="explore" class="nav-link"><span class="material-icons-outlined">explore</span><span class="nav-label">Explore</span></a>
+          <a href="#achievements" data-route="achievements" class="nav-link"><span class="material-icons-outlined">workspace_premium</span><span class="nav-label">Achievements</span></a>
+          <a href="#profile" data-route="profile" class="nav-link"><span class="material-icons-outlined">person</span><span class="nav-label">Profile</span></a>
+          <a href="#settings" data-route="settings" class="nav-link"><span class="material-icons-outlined">settings</span><span class="nav-label">Settings</span></a>
+          <div class="nav-sep"></div>
+          <a href="#certificate" data-route="certificate" class="nav-link"><span class="material-icons-outlined">emoji_events</span><span class="nav-label">Certificate</span></a>
+        </nav>
+        <div class="sidebar-footer">
+          <small class="muted">Built for interviews • GitHub Pages</small>
+        </div>
+      </aside>
 
-      <!-- LESSON -->
-      <section id="lesson" class="page">
-        <h2 id="lesson-title"></h2>
-        <div id="lesson-content"></div>
-        <button id="mark-complete-btn" class="btn primary">Mark Completed</button>
-      </section>
+      <!-- Content -->
+      <main class="content">
 
-      <!-- QUIZ -->
-      <section id="quiz" class="page">
-        <h2>Quiz</h2>
-        <div id="quiz-card" class="card"></div>
-      </section>
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="page active">
+          <div class="grid grid-2">
+            <div class="card card-large">
+              <div class="card-header">
+                <h3>Welcome back</h3>
+                <div class="muted" id="welcome-sub">Ready to learn?</div>
+              </div>
+              <div class="card-body dashboard-cards">
+                <div class="stat-card"><div class="muted">XP</div><h2 id="xp-count">0</h2></div>
+                <div class="stat-card"><div class="muted">In Progress</div><h2 id="inprogress-count">0</h2></div>
+                <div class="stat-card"><div class="muted">Completed</div><h2 id="completed-count">0</h2></div>
+                <div class="stat-card"><div class="muted">Certificates</div><h2 id="cert-count">0</h2></div>
+              </div>
+            </div>
+            <div class="card card-large">
+              <div class="card-header"><h3>Progress overview</h3><div class="muted">Track completion across courses</div></div>
+              <div class="card-body"><canvas id="progress-chart" height="140"></canvas></div>
+            </div>
+          </div>
 
-      <!-- PROFILE -->
-      <section id="profile" class="page">
-        <h2>Profile</h2>
-        <input id="profile-name" placeholder="Your name">
-        <button class="btn primary" onclick="saveProfile()">Save</button>
-      </section>
+          <!-- Progress / XP Card -->
+          <div class="progress-card">
+            <h3>Your Progress</h3>
+            <div class="stat"><span>XP</span><span id="xp-value">0</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="xp-bar"></div></div>
+            <div class="stat"><span>Level</span><span class="level-badge" id="level-badge">Level 1</span></div>
+          </div>
 
-    </main>
+          <div class="section">
+            <h3>Quick actions</h3>
+            <div class="row gap">
+              <button class="btn primary" onclick="showPage('courses')">Explore Courses</button>
+              <button class="btn" onclick="openUploadModal()">Upload Resource</button>
+              <button class="btn" onclick="downloadReadme()">Download README</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- COURSES -->
+        <section id="courses" class="page">
+          <div class="section-header"><h2>Courses</h2><div class="muted">Select a course to view lessons, resources and quiz.</div></div>
+          <div id="courses-grid" class="grid-card"></div>
+        </section>
+
+        <!-- EXPLORE -->
+        <section id="explore" class="page">
+          <div class="section-header"><h2>Explore</h2><div class="muted">Filter, search and sort courses</div></div>
+          <div class="filters row gap">
+            <select id="filter-category"><option value="">All categories</option></select>
+            <select id="filter-level"><option value="">All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+            <button class="btn" id="clear-filters">Clear</button>
+          </div>
+          <div id="explore-grid" class="grid-card"></div>
+        </section>
+
+        <!-- COURSE DETAIL -->
+        <section id="course-detail" class="page">
+          <div class="section-header row space-between">
+            <div><h2 id="course-title">Course Title</h2><div class="muted" id="course-meta">Category • Level • Lessons</div></div>
+            <div class="row gap">
+              <button class="btn" onclick="showPage('courses')">← Back</button>
+              <button class="btn primary" id="start-course-btn">Start Course</button>
+            </div>
+          </div>
+          <div class="grid grid-3" style="align-items:start;">
+            <div class="card">
+              <h4>About</h4>
+              <p id="course-desc" class="muted"></p>
+              <h4 style="margin-top:12px">Lessons</h4>
+              <ul id="lesson-list" class="list"></ul>
+            </div>
+            <div class="card">
+              <h4>Resources</h4>
+              <div id="resource-drop" class="dropzone">
+                <div class="drop-inner">
+                  <span class="material-icons-outlined">cloud_upload</span>
+                  <p>Drag & drop files here, or click to browse</p>
+                  <small class="muted">Files saved to your browser (LocalStorage)</small>
+                </div>
+                <input id="resource-input" type="file" multiple hidden />
+              </div>
+              <div id="resource-list" class="list"></div>
+            </div>
+            <div class="card">
+              <h4>Course Actions</h4>
+              <div class="row gap column">
+                <button class="btn primary" onclick="openQuiz(currentCourseId)">Take Quiz</button>
+                <button class="btn" onclick="generateCertificateFor(currentCourseId)">Generate Certificate</button>
+                <button class="btn" onclick="openResourcesFolder(currentCourseId)">Open Resources</button>
+              </div>
+              <h4 style="margin-top:16px">Progress</h4>
+              <div id="course-progress" class="muted">0% completed</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- LESSON VIEWER -->
+        <section id="lesson" class="page">
+          <div class="section-header row space-between">
+            <div><h2 id="lesson-title">Lesson</h2><div class="muted" id="lesson-meta">Course • Duration</div></div>
+            <div class="row gap">
+              <button class="btn" onclick="showPage('course-detail')">← Back</button>
+              <button class="btn primary" id="mark-complete-btn">Mark Completed</button>
+            </div>
+          </div>
+          <div class="card">
+            <div id="lesson-content"></div>
+            <div id="lesson-code" style="margin-top:12px"></div>
+          </div>
+        </section>
+
+        <!-- QUIZ -->
+        <section id="quiz" class="page">
+          <div class="section-header row space-between">
+            <div><h2 id="quiz-title">Quiz</h2><div class="muted" id="quiz-meta">Course quiz</div></div>
+            <div class="row gap"><button class="btn" onclick="showPage('course-detail')">← Back</button></div>
+          </div>
+          <div id="quiz-card" class="card"></div>
+        </section>
+
+        <!-- CERTIFICATE -->
+        <section id="certificate" class="page">
+          <div class="section-header"><h2>Certificate</h2><div class="muted">Generate a certificate you can download</div></div>
+          <div class="card">
+            <input id="cert-name" placeholder="Your full name" />
+            <div class="row gap" style="margin-top:12px">
+              <button class="btn primary" onclick="generateCertificate()">Generate & Download</button>
+            </div>
+            <canvas id="certificate-canvas" width="1000" height="700" style="max-width:100%; margin-top:12px"></canvas>
+          </div>
+        </section>
+
+        <!-- ACHIEVEMENTS -->
+        <section id="achievements" class="page">
+          <div class="section-header"><h2>Achievements</h2></div>
+          <div id="badges" class="row wrap gap"></div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="profile" class="page">
+          <div class="section-header"><h2>Profile</h2></div>
+          <div class="card">
+            <label>Display name</label>
+            <input id="profile-name" />
+            <label>Avatar URL</label>
+            <input id="profile-avatar" />
+            <div class="row gap" style="margin-top:10px">
+              <button class="btn primary" id="save-profile">Save</button>
+              <button class="btn" onclick="logout()">Logout</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="settings" class="page">
+          <div class="section-header"><h2>Settings</h2></div>
+          <div class="card">
+            <label>Theme</label>
+            <select id="select-theme"><option value="light">Light</option><option value="dark">Dark</option></select>
+            <label style="margin-top:12px">Preferred Code Theme</label>
+            <select id="code-theme"><option>Dracula</option><option>Monokai</option><option>VS Code Dark</option></select>
+          </div>
+        </section>
+
+      </main> <!-- end content -->
+    </div> <!-- end main-wrap -->
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div><small class="muted">Learnify • Google Material Dashboard style • Drop-in for GitHub Pages</small></div>
+      <div><button class="btn" onclick="downloadReadme()">README</button></div>
+    </footer>
+
+    <!-- Modal root -->
+    <div id="modal-root"></div>
   </div>
 
-  <!-- TOASTS -->
-  <div id="toast-container" class="toast-container"></div>
-
-</div>
-<script src="script.js"></script>
+  <!-- Main JS -->
+  <script src="script.js"></script>
 </body>
 </html>
